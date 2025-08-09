@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #2ea57c;
+  --accent: #25bd8a;
+  --secondary: #eaf6ef;
+  --dark: #27413a;
+}
+
+/* Font variables from next/font */
+:root {
+  --font-lato: var(--font-lato);
+  --font-quick: var(--font-quick);
+}
+
+body {
+  font-family: var(--font-lato);
+}
+
+/* small utility tweaks to match the design */
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* basic card */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(45, 62, 71, 0.03);
+}
