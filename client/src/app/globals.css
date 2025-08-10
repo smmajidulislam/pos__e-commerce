@@ -1,12 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --primary: #2ea57c;
   --accent: #25bd8a;
   --secondary: #eaf6ef;
   --dark: #27413a;
+  --text-brand: #2ea57c; /* from demo */
+  --text-danger: #e31d1c; /* from demo */
+  --text-success: #67bd23; /* from demo */
 }
 
 /* Font variables from next/font */
@@ -19,18 +20,208 @@ body {
   font-family: var(--font-lato);
 }
 
-/* small utility tweaks to match the design */
-.container {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 16px;
-  padding-right: 16px;
+/* Custom card style (if needed beyond Tailwind defaults) */
+.card {
+  background-color: white;
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: 0 6px 18px rgba(45, 62, 71, 0.03);
 }
 
-/* basic card */
-.card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(45, 62, 71, 0.03);
+/* Custom button styles (override Tailwind defaults if needed) */
+button {
+  background-color: var(--primary);
+  color: white;
+  border-radius: 0.25rem; /* 4px */
+  padding: 0.5rem 1rem;
+}
+
+button:hover {
+  background-color: #059669;
+}
+
+/* Header-specific customizations */
+.header-top {
+  border-bottom-width: 1px;
+  border-bottom-color: #eee;
+}
+
+.header-bottom {
+  background-color: var(--primary);
+  color: white;
+}
+
+.header-wrap {
+  @apply flex items-center justify-between;
+}
+
+.logo-width-1 {
+  width: 150px;
+}
+
+/* Search and form styles */
+.search-style-2 {
+  width: 500px;
+}
+
+.form--quick-search {
+  @apply flex;
+}
+
+.product-cat-label {
+  @apply absolute top-2.5 left-2.5 text-gray-500;
+}
+
+.product-category-select {
+  width: 150px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right-width: 0;
+}
+
+.input-search-product {
+  flex: 1;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-width: 0;
+}
+
+.btn {
+  background-color: var(--primary);
+  color: white;
+  border-radius: 0.25rem; /* 4px */
+}
+
+/* Header action styles */
+.header-action-right {
+  @apply flex gap-5;
+}
+
+.header-action-2 {
+  @apply flex gap-3.75;
+}
+
+.header-action-icon-2 {
+  @apply relative;
+}
+
+.pro-count {
+  @apply absolute top-[-5px] right-[-5px] bg-primary text-white rounded-full px-1.5 text-xs;
+}
+
+.lable {
+  @apply block text-center text-xs;
+}
+
+.hotline {
+  @apply flex items-center gap-2.5;
+}
+
+/* Burger icon */
+.burger-icon {
+  @apply cursor-pointer;
+}
+
+.burger-icon span {
+  @apply block w-6 h-0.75 bg-white my-1.25;
+}
+
+.burger-icon-white span {
+  background-color: white;
+}
+
+/* Main menu and dropdowns */
+.main-categories-wrap {
+  margin-right: 20px;
+}
+
+.categories-button-active {
+  @apply bg-primary text-white px-5 py-2.5 rounded;
+}
+
+.main-menu ul {
+  @apply flex gap-5;
+}
+
+.sub-menu {
+  @apply absolute bg-white shadow-md hidden;
+}
+
+li:hover .sub-menu {
+  @apply block;
+}
+
+.categories-dropdown-wrap {
+  width: 300px;
+  padding: 20px;
+}
+
+.categories-dropdown-inner {
+  @apply flex gap-5;
+}
+
+.categories-dropdown-inner ul {
+  @apply list-none p-0;
+}
+
+.categories-dropdown-inner li {
+  @apply mb-2.5;
+}
+
+.more_categories {
+  @apply cursor-pointer mt-2.5;
+}
+
+/* Sticky bar */
+.sticky-bar {
+  @apply sticky top-0 z-50 bg-white;
+}
+
+/* Dropdowns */
+.language-dropdown,
+.cart-dropdown-wrap,
+.categories-dropdown-wrap,
+.sub-menu {
+  @apply absolute bg-white shadow-md rounded-lg p-4 z-50 hidden;
+}
+
+.language-dropdown-active:hover .language-dropdown,
+.mini-cart-icon:hover .cart-dropdown-wrap,
+.categories-button-active:hover .categories-dropdown-wrap,
+li:hover .sub-menu {
+  @apply block;
+}
+
+/* News flash */
+#news-flash {
+  /* @apply overflow-hidden relative inline-block h-3.75; */
+  /* @apply font-semibold text-sm line-height-[10px] min-w-[400px]; */
+}
+
+#news-flash ul {
+  /* @apply absolute m-0 p-0 top-0 transition-all duration-500 ease-in-out; */
+}
+
+#news-flash li {
+  /* @apply m-0 p-0 h-3.75 list-item whitespace-nowrap; */
+}
+
+/* Utility classes */
+.mr-5 {
+  margin-right: 5px;
+}
+
+.text-brand {
+  color: var(--text-brand);
+}
+
+.text-danger {
+  color: var(--text-danger);
+}
+
+.text-success {
+  color: var(--text-success);
+}
+
+.svgInject {
+  @apply w-6 h-6;
 }
