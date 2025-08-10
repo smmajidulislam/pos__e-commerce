@@ -2,6 +2,7 @@ import { Lato, Quicksand } from "next/font/google";
 import Head from "next/head";
 import Header from "./components/global/Header";
 import "./globals.css";
+import ReduxProvider from "./store/reduxProvider/ReduxProvider";
 
 const lato = Lato({
   subsets: ["latin"],
@@ -32,8 +33,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${lato.variable} ${quick.variable} font-lato bg-white text-darkText`}
       >
-        <Header />
-        {children}
+        <ReduxProvider>
+          <Header />
+          {children}
+        </ReduxProvider>
       </body>
     </html>
   );
