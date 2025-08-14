@@ -1,7 +1,10 @@
 "use client";
-
+import { useRoutes } from "./hooks/RoutesHooks/useRoutes";
+import HomepageLayout from "./layouts/homepage/HomepageLayout";
+import PosLayout from "./layouts/posRoutes/PosLayout";
 const Home = () => {
-  return <h1 className="text-3xl font-bold underline">Hello world!</h1>;
+  const { isPos } = useRoutes();
+  return isPos ? <HomepageLayout /> : <PosLayout />;
 };
 
 export default Home;
