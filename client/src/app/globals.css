@@ -5,9 +5,8 @@
   --accent: #25bd8a;
   --secondary: #eaf6ef;
   --dark: #27413a;
-  --text-brand: #2ea57c; /* from demo */
-  --text-danger: #e31d1c; /* from demo */
-  --text-success: #67bd23; /* from demo */
+  --text-brand: #2ea57c;
+  --text-danger: #e31d1c;
 }
 
 /* Font variables from next/font */
