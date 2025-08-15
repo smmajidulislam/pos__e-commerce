@@ -116,71 +116,74 @@ const Sidebar = () => {
         onMouseEnter={() => !mobileOpen && setIsCollapsed(false)}
         onMouseLeave={() => !mobileOpen && setIsCollapsed(true)}
         className={`
-          bg-gray-100 h-screen text-black shadow-md p-2 overflow-y-auto transition-all duration-300
-          fixed sm:relative z-50
-          ${mobileOpen ? "w-full left-0" : "left-[-100%] sm:left-0"}
-          ${!mobileOpen && isCollapsed ? "w-16 sm:w-16" : "w-52"}
-        `}
+    bg-gray-100 text-black shadow-md
+    fixed top-16 left-0 h-screen z-50
+    transition-all duration-300
+    ${mobileOpen ? "w-full" : isCollapsed ? "w-16" : "w-52"}
+  `}
       >
-        <ul className="space-y-1">
-          {menuItems.map((item, index) => (
-            <li key={index}>
-              {item.subItems ? (
-                <>
-                  <button
-                    onClick={() => toggleMenu(item.label)}
-                    className="flex justify-between items-center w-full px-2 py-1 hover:bg-gray-200 rounded"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 flex items-center justify-center">
-                        {item.icon}
+        <div className="h-full flex flex-col overflow-y-auto p-2">
+          <ul className="space-y-1">
+            {menuItems.map((item, index) => (
+              <li key={index}>
+                {item.subItems ? (
+                  <>
+                    <button
+                      onClick={() => toggleMenu(item.label)}
+                      className="flex justify-between items-center w-full px-2 py-1 hover:bg-gray-200 rounded"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="w-5 h-5 flex items-center justify-center">
+                          {item.icon}
+                        </span>
+                        {/* Show text on desktop if not collapsed OR mobileOpen */}
+                        {(mobileOpen || !isCollapsed) && (
+                          <span>{item.label}</span>
+                        )}
                       </span>
-                      {/* Show text on desktop if not collapsed OR mobileOpen */}
-                      {(mobileOpen || !isCollapsed) && (
-                        <span>{item.label}</span>
-                      )}
-                    </span>
-                    {(mobileOpen || !isCollapsed) &&
-                      (openMenu === item.label ? (
-                        <IoIosArrowDown />
-                      ) : (
-                        <IoIosArrowForward />
-                      ))}
-                  </button>
+                      {(mobileOpen || !isCollapsed) &&
+                        (openMenu === item.label ? (
+                          <IoIosArrowDown />
+                        ) : (
+                          <IoIosArrowForward />
+                        ))}
+                    </button>
 
-                  {openMenu === item.label && (mobileOpen || !isCollapsed) && (
-                    <ul className="text-sm mt-1 ml-3 space-y-1">
-                      {item.subItems.map((sub, subIndex) => (
-                        <li
-                          key={subIndex}
-                          className={`relative pl-5 cursor-pointer before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-yellow-500 ${
-                            activeSub === sub.label
-                              ? "text-yellow-500 font-semibold"
-                              : "text-black"
-                          }`}
-                          onClick={() => setActiveSubItem(sub.label)}
-                        >
-                          {sub.label}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              ) : (
-                <a
-                  href={item.link}
-                  className="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 rounded"
-                  onClick={() => mobileOpen && setMobileOpen(false)}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center">
-                    {item.icon}
-                  </span>
-                  {(mobileOpen || !isCollapsed) && <span>{item.label}</span>}
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
+                    {openMenu === item.label &&
+                      (mobileOpen || !isCollapsed) && (
+                        <ul className="text-sm mt-1 ml-3 space-y-1">
+                          {item.subItems.map((sub, subIndex) => (
+                            <li
+                              key={subIndex}
+                              className={`relative pl-5 cursor-pointer before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-yellow-500 ${
+                                activeSub === sub.label
+                                  ? "text-yellow-500 font-semibold"
+                                  : "text-black"
+                              }`}
+                              onClick={() => setActiveSubItem(sub.label)}
+                            >
+                              {sub.label}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                  </>
+                ) : (
+                  <a
+                    href={item.link}
+                    className="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 rounded"
+                    onClick={() => mobileOpen && setMobileOpen(false)}
+                  >
+                    <span className="w-5 h-5 flex items-center justify-center">
+                      {item.icon}
+                    </span>
+                    {(mobileOpen || !isCollapsed) && <span>{item.label}</span>}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </aside>
 
       {/* Mobile menu button */}

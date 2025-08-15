@@ -39,7 +39,7 @@ const Header = () => {
   const toggleProfileMenu = () => setProfileOpen((prev) => !prev);
 
   return (
-    <header className="bg-white h-16 flex items-center shadow-sm border-b border-gray-200 px-4">
+    <header className="bg-white h-16 flex items-center shadow-sm border-b border-gray-200 px-4 sticky top-0 z-50">
       {/* Left: Sidebar toggle + Logo */}
       <div
         className={`flex items-center transition-all duration-300 ${
