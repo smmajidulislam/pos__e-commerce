@@ -11,81 +11,82 @@ import { MdOutlineShoppingBag } from "react-icons/md";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { HiOutlineMenu } from "react-icons/hi";
 import { useTheme } from "@/app/hooks/theme/useThem";
+import Link from "next/link";
 
 const menuItems = [
-  { label: "Dashboard", icon: <FaTachometerAlt />, link: "#" },
+  { label: "Dashboard", icon: <FaTachometerAlt />, link: "/dashboard" },
   {
     label: "Products",
     icon: <MdOutlineShoppingBag />,
     subItems: [
-      { label: "Product", link: "#" },
-      { label: "Create Product", link: "#" },
-      { label: "Category", link: "#" },
-      { label: "Sub Category", link: "#" },
-      { label: "Brands", link: "#" },
-      { label: "Units", link: "#" },
-      { label: "Variants List", link: "#" },
-      { label: "Warranties", link: "#" },
+      { label: "Product", link: "/product" },
+      { label: "Create Product", link: "/product/create" },
+      { label: "Category", link: "/category" },
+      { label: "Sub Category", link: "/subcategory" },
+      { label: "Brands", link: "/brands" },
+      { label: "Units", link: "/units" },
+      { label: "Variants List", link: "/variants" },
+      { label: "Warranties", link: "/warranties" },
     ],
   },
   {
     label: "Stock",
     icon: <FaTachometerAlt />,
     subItems: [
-      { label: "Stock Adjustment", link: "#" },
-      { label: "Stock Transfer", link: "#" },
+      { label: "Stock Adjustment", link: "/stock-adjustment" },
+      { label: "Stock Transfer", link: "/stock-transfer" },
     ],
   },
   {
     label: "Purchase",
     icon: <FaChartBar />,
     subItems: [
-      { label: "Purchase", link: "#" },
-      { label: "Purchase Order", link: "#" },
-      { label: "Purchase Return", link: "#" },
+      { label: "Purchase", link: "/purchase" },
+      { label: "Purchase Order", link: "/purchase-order" },
+      { label: "Purchase Return", link: "/purchase-return" },
     ],
   },
   {
     label: "Sales",
     icon: <FaShoppingCart />,
     subItems: [
-      { label: "Sales", link: "#" },
-      { label: "Sales Return", link: "#" },
-      { label: "Pos", link: "#" },
+      { label: "Sales", link: "/sales" },
+      { label: "Sales Return", link: "/sales-return" },
+      { label: "Pos", link: "/pos" },
     ],
   },
   {
     label: "Coupons",
     icon: <FaTags />,
-    subItems: [{ label: "Manage Coupons", link: "#" }],
+    subItems: [{ label: "Manage Coupons", link: "/coupons" }],
   },
   {
     label: "People",
     icon: <FaTags />,
     subItems: [
-      { label: "Customers", link: "#" },
-      { label: "Suppliers", link: "#" },
-      { label: "Users", link: "#" },
-      { label: "Roles", link: "#" },
-      { label: "Permissions", link: "#" },
-      { label: "Branches", link: "#" },
-      { label: "Warehouses", link: "#" },
+      { label: "Customers", link: "/customers" },
+      { label: "Suppliers", link: "/suppliers" },
+      { label: "Users", link: "/users" },
+      { label: "Roles", link: "/roles" },
+      { label: "Permissions", link: "/permissions" },
+      { label: "Branches", link: "/branches" },
+      { label: "Warehouses", link: "/warehouses" },
     ],
   },
   {
     label: "Reports",
     icon: <FaTags />,
     subItems: [
-      { label: "Sales Report", link: "#" },
-      { label: "Purchase Report", link: "#" },
-      { label: "Selles Report", link: "#" },
-      { label: "Low Stock Report", link: "#" },
-      { label: "Supplier Report", link: "#" },
-      { label: "Customer Report", link: "#" },
-      { label: "Profit & Loss Report", link: "#" },
+      { label: "Sales Report", link: "/reports/sales" },
+      { label: "Purchase Report", link: "/reports/purchase" },
+      { label: "Selles Report", link: "/reports/sales-summary" },
+      { label: "Low Stock Report", link: "/reports/low-stock" },
+      { label: "Supplier Report", link: "/reports/supplier" },
+      { label: "Customer Report", link: "/reports/customer" },
+      { label: "Profit & Loss Report", link: "/reports/profit-loss" },
     ],
   },
-  { label: "Settings", icon: <FaCog />, link: "#" },
+  { label: "Settings", icon: <FaCog />, link: "/settings" },
 ];
 
 const Sidebar = () => {
@@ -115,12 +116,9 @@ const Sidebar = () => {
       <aside
         onMouseEnter={() => !mobileOpen && setIsCollapsed(false)}
         onMouseLeave={() => !mobileOpen && setIsCollapsed(true)}
-        className={`
-    bg-gray-100 text-black shadow-md
-    fixed top-16 left-0 h-screen z-50
-    transition-all duration-300
-    ${mobileOpen ? "w-full" : isCollapsed ? "w-16" : "w-52"}
-  `}
+        className={`bg-gray-100 text-black shadow-md fixed top-16 left-0 h-screen z-50 transition-all duration-300 ${
+          mobileOpen ? "w-full" : isCollapsed ? "w-16" : "w-52"
+        }`}
       >
         <div className="h-full flex flex-col overflow-y-auto p-2">
           <ul className="space-y-1">
@@ -136,7 +134,6 @@ const Sidebar = () => {
                         <span className="w-5 h-5 flex items-center justify-center">
                           {item.icon}
                         </span>
-                        {/* Show text on desktop if not collapsed OR mobileOpen */}
                         {(mobileOpen || !isCollapsed) && (
                           <span>{item.label}</span>
                         )}
@@ -153,23 +150,25 @@ const Sidebar = () => {
                       (mobileOpen || !isCollapsed) && (
                         <ul className="text-sm mt-1 ml-3 space-y-1">
                           {item.subItems.map((sub, subIndex) => (
-                            <li
-                              key={subIndex}
-                              className={`relative pl-5 cursor-pointer before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-yellow-500 ${
-                                activeSub === sub.label
-                                  ? "text-yellow-500 font-semibold"
-                                  : "text-black"
-                              }`}
-                              onClick={() => setActiveSubItem(sub.label)}
-                            >
-                              {sub.label}
+                            <li key={subIndex} className="relative pl-5">
+                              <Link
+                                href={sub.link}
+                                className={`block cursor-pointer py-1 ${
+                                  activeSub === sub.label
+                                    ? "text-yellow-500 font-semibold"
+                                    : "text-black"
+                                }`}
+                                onClick={() => setActiveSubItem(sub.label)}
+                              >
+                                {sub.label}
+                              </Link>
                             </li>
                           ))}
                         </ul>
                       )}
                   </>
                 ) : (
-                  <a
+                  <Link
                     href={item.link}
                     className="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 rounded"
                     onClick={() => mobileOpen && setMobileOpen(false)}
@@ -178,7 +177,7 @@ const Sidebar = () => {
                       {item.icon}
                     </span>
                     {(mobileOpen || !isCollapsed) && <span>{item.label}</span>}
-                  </a>
+                  </Link>
                 )}
               </li>
             ))}

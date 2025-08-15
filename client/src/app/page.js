@@ -1,7 +1,6 @@
 "use client";
+import Homepage from "./(Full-width-pages)/homepage/HomePage";
 import { useRoutes } from "./hooks/RoutesHooks/useRoutes";
-import Ecommerce from "./layouts/homepage/Ecommerce";
-import Homepage from "./layouts/homepage/HomePage";
 import PosLayout from "./layouts/posRoutes/PosLayout";
 
 const Home = () => {
@@ -12,9 +11,7 @@ const Home = () => {
       <Homepage />
     </PosLayout>
   ) : (
-    <div>
-      <Ecommerce />
-    </div>
+    <div>hello</div>
   );
 };
 
