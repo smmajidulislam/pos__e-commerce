@@ -12,21 +12,25 @@ const informationData = [
   {
     icon: <FaUsers className="text-white text-2xl" />, // Customer icon updated
     title: "Customer",
+    bg: "bg-gradient-to-l from-[#8A2BE2] to-[#FF69B4]",
     quantity: 0,
   },
   {
     icon: <FaTruck className="text-white text-2xl" />, // Supplier icon updated
     title: "Supplier",
+    bg: "bg-gradient-to-r from-[#8A2BE2] to-[#FF69B4]",
     quantity: 0,
   },
   {
     icon: <FaFileInvoiceDollar className="text-white text-2xl" />, // Purchase Invoices icon updated
     title: "Purchase Invoices",
-    quantity: 0,
+    bg: "bg-gradient-to-r from-[#00FFFF] to-[#FF69B4]",
+    quantity: 500000,
   },
   {
     icon: <FaShoppingCart className="text-white text-2xl" />, // Sales Invoices icon updated
     title: "Sales Invoices",
+    bg: "bg-gradient-to-r from-blue-400 to-purple-500",
     quantity: 0,
   },
 ];
@@ -47,6 +51,7 @@ const Reports = () => {
                 icon={item.icon}
                 title={item.title}
                 quantity={item.quantity}
+                bg={item.bg}
               />
             </div>
           )

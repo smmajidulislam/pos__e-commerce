@@ -14,7 +14,7 @@ import { useTheme } from "@/app/hooks/theme/useThem";
 import Link from "next/link";
 
 const menuItems = [
-  { label: "Dashboard", icon: <FaTachometerAlt />, link: "/dashboard" },
+  { label: "Dashboard", icon: <FaTachometerAlt />, link: "/" },
   {
     label: "Products",
     icon: <MdOutlineShoppingBag />,
@@ -79,7 +79,7 @@ const menuItems = [
     subItems: [
       { label: "Sales Report", link: "/reports/sales" },
       { label: "Purchase Report", link: "/reports/purchase" },
-      { label: "Selles Report", link: "/reports/sales-summary" },
+      { label: "Sales Summary", link: "/reports/sales-summary" },
       { label: "Low Stock Report", link: "/reports/low-stock" },
       { label: "Supplier Report", link: "/reports/supplier" },
       { label: "Customer Report", link: "/reports/customer" },
@@ -116,47 +116,56 @@ const Sidebar = () => {
       <aside
         onMouseEnter={() => !mobileOpen && setIsCollapsed(false)}
         onMouseLeave={() => !mobileOpen && setIsCollapsed(true)}
-        className={`bg-gray-100 text-black shadow-md fixed top-16 left-0 h-screen z-50 transition-all duration-300 ${
-          mobileOpen ? "w-full" : isCollapsed ? "w-16" : "w-52"
+        className={`bg-gray-100 text-black shadow-lg fixed top-16 left-0 h-screen z-50 transition-all duration-300 ${
+          mobileOpen ? "w-full" : isCollapsed ? "w-16" : "w-56"
         }`}
       >
-        <div className="h-full flex flex-col overflow-y-auto p-2">
-          <ul className="space-y-1">
+        <div className="h-full flex flex-col overflow-y-auto p-3">
+          <ul className="space-y-2">
             {menuItems.map((item, index) => (
               <li key={index}>
                 {item.subItems ? (
                   <>
                     <button
                       onClick={() => toggleMenu(item.label)}
-                      className="flex justify-between items-center w-full px-2 py-1 hover:bg-gray-200 rounded"
+                      className="flex justify-between items-center w-full px-3 py-2 hover:bg-gray-200 rounded-lg transition-all duration-200"
                     >
-                      <span className="flex items-center gap-2">
-                        <span className="w-5 h-5 flex items-center justify-center">
-                          {item.icon}
-                        </span>
+                      <span className="flex items-center gap-3 text-lg">
+                        <span className="text-xl">{item.icon}</span>
                         {(mobileOpen || !isCollapsed) && (
-                          <span>{item.label}</span>
+                          <span className="font-medium">{item.label}</span>
                         )}
                       </span>
                       {(mobileOpen || !isCollapsed) &&
                         (openMenu === item.label ? (
-                          <IoIosArrowDown />
+                          <IoIosArrowDown className="text-lg" />
                         ) : (
-                          <IoIosArrowForward />
+                          <IoIosArrowForward className="text-lg" />
                         ))}
                     </button>
 
                     {openMenu === item.label &&
                       (mobileOpen || !isCollapsed) && (
-                        <ul className="text-sm mt-1 ml-3 space-y-1">
+                        <ul className="text-sm mt-1 ml-5 space-y-1">
                           {item.subItems.map((sub, subIndex) => (
-                            <li key={subIndex} className="relative pl-5">
+                            <li
+                              key={subIndex}
+                              className="relative flex items-center gap-2"
+                            >
+                              {/* Dot indicator */}
+                              <span
+                                className={`w-2 h-2 rounded-full ${
+                                  activeSub === sub.label
+                                    ? "bg-yellow-500"
+                                    : "bg-gray-400"
+                                }`}
+                              ></span>
                               <Link
                                 href={sub.link}
-                                className={`block cursor-pointer py-1 ${
+                                className={`block py-1 px-2 rounded hover:bg-gray-200 transition-all duration-200 ${
                                   activeSub === sub.label
                                     ? "text-yellow-500 font-semibold"
-                                    : "text-black"
+                                    : "text-gray-800"
                                 }`}
                                 onClick={() => setActiveSubItem(sub.label)}
                               >
@@ -170,13 +179,13 @@ const Sidebar = () => {
                 ) : (
                   <Link
                     href={item.link}
-                    className="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 rounded"
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-200 rounded-lg text-lg transition-all duration-200"
                     onClick={() => mobileOpen && setMobileOpen(false)}
                   >
-                    <span className="w-5 h-5 flex items-center justify-center">
-                      {item.icon}
-                    </span>
-                    {(mobileOpen || !isCollapsed) && <span>{item.label}</span>}
+                    <span className="text-xl">{item.icon}</span>
+                    {(mobileOpen || !isCollapsed) && (
+                      <span className="font-medium">{item.label}</span>
+                    )}
                   </Link>
                 )}
               </li>
@@ -187,10 +196,10 @@ const Sidebar = () => {
 
       {/* Mobile menu button */}
       <button
-        className="fixed top-4 left-4 z-50 sm:hidden p-2 bg-white shadow rounded"
+        className="fixed top-4 left-4 z-50 sm:hidden p-3 bg-white shadow-lg rounded-lg"
         onClick={() => setMobileOpen((prev) => !prev)}
       >
-        <HiOutlineMenu size={24} />
+        <HiOutlineMenu size={28} />
       </button>
     </>
   );
