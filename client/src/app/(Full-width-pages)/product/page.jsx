@@ -1,14 +1,14 @@
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
-import Product from "@/app/pages/productpage/Product";
+import Products from "@/app/pages/productpage/Product";
 
-const Products = () => {
+const Product = () => {
   return (
     <div>
       <PosLayout>
-        <Product />
+        <Products />
       </PosLayout>
     </div>
   );
 };
 
-export default Products;
+export default Product;

@@ -2,6 +2,7 @@ import { Lato, Quicksand } from "next/font/google";
 import "./globals.css";
 import { RoutesProvider } from "./contexts/RoutesContex/RoutesContex";
 import { ThemProvider } from "./contexts/theme/them";
+import "antd/dist/reset.css";
 
 const lato = Lato({
   subsets: ["latin"],

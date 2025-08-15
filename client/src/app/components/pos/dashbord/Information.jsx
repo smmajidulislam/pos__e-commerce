@@ -6,23 +6,23 @@ import InformationCardSkeleton from "./SkeltionInformation";
 const informationData = [
   {
     icon: <FaUser />,
-    title: "User Management",
-    description: "Manage all your users and their access levels easily.",
+    title: "Total Purcase Due",
+    description: 0,
   },
   {
     icon: <FaChartLine />,
-    title: "Analytics",
-    description: "View detailed analytics and reports for your business.",
+    title: "Total Sales Due",
+    description: 0,
   },
   {
     icon: <FaBell />,
-    title: "Notifications",
-    description: "Receive real-time notifications about important updates.",
+    title: "Total Sales Ammount",
+    description: 0,
   },
   {
     icon: <FaCogs />,
-    title: "Settings",
-    description: "Configure your account and system preferences quickly.",
+    title: "Total Expense Amount",
+    description: 0,
   },
 ];
 
