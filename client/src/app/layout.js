@@ -23,9 +23,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${lato.variable} ${quick.variable} font-lato bg-white text-darkText`}
-      >
+      <body className={`${lato.variable} ${quick.variable} bg-white text-dark`}>
         <RoutesProvider>
           <ThemProvider>{children}</ThemProvider>
         </RoutesProvider>

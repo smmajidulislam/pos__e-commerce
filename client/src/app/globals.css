@@ -9,7 +9,34 @@
   --text-danger: #e31d1c;
 }
 
-:root {
-  --font-lato: var(--font-lato);
-  --font-quick: var(--font-quick);
+@layer base {
+  /* Colors */
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  .bg-secondary {
+    background-color: var(--secondary);
+  }
+  .bg-dark {
+    background-color: var(--dark);
+  }
+
+  .text-primary {
+    color: var(--primary);
+  }
+  .text-accent {
+    color: var(--accent);
+  }
+  .text-secondary {
+    color: var(--secondary);
+  }
+  .text-dark {
+    color: var(--dark);
+  }
+  .text-danger {
+    color: var(--text-danger);
+  }
 }

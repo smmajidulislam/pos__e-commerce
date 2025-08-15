@@ -4,7 +4,7 @@ import { createContext, useState } from "react";
 export const RoutesContext = createContext();
 
 export const RoutesProvider = ({ children }) => {
-  const [isPos, setIsPos] = useState(false);
+  const [isPos, setIsPos] = useState(true);
   const [loading, setLoading] = useState(false);
 
   return (

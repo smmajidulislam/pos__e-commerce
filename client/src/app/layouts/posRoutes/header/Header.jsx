@@ -58,7 +58,7 @@ const Header = () => {
         </button>
 
         {!isCollapsed && (
-          <span className="ml-4 text-lg font-semibold">POS Dashboard</span>
+          <span className="ml-1 text-lg font-semibold">POS Dashboard</span>
         )}
       </div>
 

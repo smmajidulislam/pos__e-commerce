@@ -1,9 +1,11 @@
-const HomePage = () => {
+import Dashbord from "@/app/pages/dashbord/Dashbord";
+
+const Homepage = () => {
   return (
-    <div>
-      <p>hello word</p>
-    </div>
+    <>
+      <Dashbord />
+    </>
   );
 };
 
-export default HomePage;
+export default Homepage;

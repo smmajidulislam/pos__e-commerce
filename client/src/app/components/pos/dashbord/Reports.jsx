@@ -1,0 +1,59 @@
+// Information.jsx
+import {
+  FaUsers,
+  FaTruck,
+  FaFileInvoiceDollar,
+  FaShoppingCart,
+} from "react-icons/fa";
+import InformationCardSkeleton from "./SkeltionInformation";
+import ReportCard from "./ReportCard";
+
+const informationData = [
+  {
+    icon: <FaUsers className="text-white text-2xl" />, // Customer icon updated
+    title: "Customer",
+    quantity: 0,
+  },
+  {
+    icon: <FaTruck className="text-white text-2xl" />, // Supplier icon updated
+    title: "Supplier",
+    quantity: 0,
+  },
+  {
+    icon: <FaFileInvoiceDollar className="text-white text-2xl" />, // Purchase Invoices icon updated
+    title: "Purchase Invoices",
+    quantity: 0,
+  },
+  {
+    icon: <FaShoppingCart className="text-white text-2xl" />, // Sales Invoices icon updated
+    title: "Sales Invoices",
+    quantity: 0,
+  },
+];
+
+const Reports = () => {
+  let isLoading;
+  return (
+    <>
+      <div className="flex flex-wrap -mx-2 p-4">
+        {informationData.map((item, index) =>
+          isLoading ? (
+            <div key={index} className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
+              <InformationCardSkeleton />
+            </div>
+          ) : (
+            <div key={index} className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
+              <ReportCard
+                icon={item.icon}
+                title={item.title}
+                quantity={item.quantity}
+              />
+            </div>
+          )
+        )}
+      </div>
+    </>
+  );
+};
+
+export default Reports;

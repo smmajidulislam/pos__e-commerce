@@ -4,7 +4,7 @@ import { useState } from "react";
 import Header from "./header/Header";
 import Sidebar from "./sidebar/Sidebar";
 
-const PosLayout = () => {
+const PosLayout = ({ children }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
@@ -21,10 +21,7 @@ const PosLayout = () => {
         {/* Main Content */}
         <main className="flex-1 bg-white p-6 overflow-auto">
           <div className="bg-gray-50 p-4 rounded-xl shadow-sm h-full">
-            <h2 className="text-xl font-semibold mb-4">Welcome to POS</h2>
-            <p className="text-gray-600">
-              Select a menu option from the sidebar to get started.
-            </p>
+            {children}
           </div>
         </main>
       </div>
