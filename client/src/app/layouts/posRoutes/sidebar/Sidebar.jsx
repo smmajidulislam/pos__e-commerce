@@ -20,7 +20,7 @@ const menuItems = [
     icon: <MdOutlineShoppingBag />,
     subItems: [
       { label: "Product", link: "/product" },
-      { label: "Create Product", link: "/product/create" },
+      { label: "Create Product", link: "/createproduct" },
       { label: "Category", link: "/category" },
       { label: "Sub Category", link: "/subcategory" },
       { label: "Brands", link: "/brands" },
