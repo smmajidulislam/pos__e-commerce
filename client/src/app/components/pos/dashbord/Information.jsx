@@ -1,6 +1,7 @@
 // Information.jsx
 import InformationCard from "./InformationCard";
 import { FaUser, FaChartLine, FaBell, FaCogs } from "react-icons/fa";
+import InformationCardSkeleton from "./SkeltionInformation";
 
 const informationData = [
   {
@@ -26,18 +27,27 @@ const informationData = [
 ];
 
 const Information = () => {
+  let isLoading;
   return (
-    <div className="flex flex-wrap -mx-2 p-4">
-      {informationData.map((item, index) => (
-        <div key={index} className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
-          <InformationCard
-            icon={item.icon}
-            title={item.title}
-            description={item.description}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="flex flex-wrap -mx-2 p-4">
+        {informationData.map((item, index) =>
+          isLoading ? (
+            <div key={index} className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
+              <InformationCardSkeleton />
+            </div>
+          ) : (
+            <div key={index} className="w-full sm:w-1/2 lg:w-1/4 px-2 mb-4">
+              <InformationCard
+                icon={item.icon}
+                title={item.title}
+                description={item.description}
+              />
+            </div>
+          )
+        )}
+      </div>
+    </>
   );
 };
 
