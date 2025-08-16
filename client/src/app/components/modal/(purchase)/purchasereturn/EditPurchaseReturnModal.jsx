@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
 
-const EditVariantModal = ({
+const EditPurchaseReturnModal = ({
   isOpen,
   setIsOpen,
   onSubmit,
@@ -42,12 +42,12 @@ const EditVariantModal = ({
           <FaTimes />
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Edit Variant</h2>
+        <h2 className="text-xl font-bold mb-4">Edit Category</h2>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div>
             <label className="block mb-1 font-semibold text-gray-700">
-              Variant Name
+              Category Name
             </label>
             <input
               {...register("categoryName", {
@@ -89,7 +89,7 @@ const EditVariantModal = ({
               type="submit"
               className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Update Variant
+              Update Brand
             </button>
           </div>
         </form>
@@ -98,4 +98,4 @@ const EditVariantModal = ({
   );
 };
 
-export default EditVariantModal;
+export default EditPurchaseReturnModal;

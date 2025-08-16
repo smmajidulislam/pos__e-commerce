@@ -42,16 +42,16 @@ const EditBrandsModal = ({
           <FaTimes />
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Edit Category</h2>
+        <h2 className="text-xl font-bold mb-4">Edit Brand</h2>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div>
             <label className="block mb-1 font-semibold text-gray-700">
-              Category Name
+              Brand Name
             </label>
             <input
-              {...register("categoryName", {
-                required: "Category is required",
+              {...register("BrandName", {
+                required: "Brand name is required",
               })}
               className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             />

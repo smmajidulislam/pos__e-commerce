@@ -1,9 +1,10 @@
+// components/modal/category/CategoryModal.jsx
 "use client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
-const VariantModal = ({ posList = [], onSubmit }) => {
+const SUbsubCategoryModal = ({ posList = [], onSubmit }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
@@ -26,7 +27,7 @@ const VariantModal = ({ posList = [], onSubmit }) => {
         onClick={() => setIsOpen(true)}
         className="flex items-center px-4 py-2 bg-green-500 !text-white rounded hover:bg-green-600"
       >
-        <FaPlus className="mr-2" /> Add New Variant
+        <FaPlus className="mr-2" /> Add New Sub sub Category
       </button>
 
       {/* Modal */}
@@ -41,23 +42,59 @@ const VariantModal = ({ posList = [], onSubmit }) => {
               <FaTimes />
             </button>
 
-            <h2 className="text-xl font-bold mb-4">Add New Variant</h2>
+            <h2 className="text-xl font-bold mb-4">Add New Sub Sub Category</h2>
 
             <form
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
+              {/* parent category */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Category
+                </label>
+                <input
+                  {...register("ParentCategory", {
+                    required: "Parent category is required",
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter category name"
+                />
+                {errors.categoryName && (
+                  <span className="text-red-500 text-sm">
+                    {errors.categoryName.message}
+                  </span>
+                )}
+              </div>
+              {/* child parent category */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Sub Category
+                </label>
+                <input
+                  {...register("subParentCategory", {
+                    required: " category is required",
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter category name"
+                />
+                {errors.categoryName && (
+                  <span className="text-red-500 text-sm">
+                    {errors.categoryName.message}
+                  </span>
+                )}
+              </div>
               {/* Category Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Variant Name
+                  Category Name
                 </label>
                 <input
-                  {...register("VariantName", {
-                    required: "Variant is required",
+                  {...register("categoryName", {
+                    required: "Category is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter Variant name"
+                  placeholder="Enter category name"
                 />
                 {errors.categoryName && (
                   <span className="text-red-500 text-sm">
@@ -106,4 +143,4 @@ const VariantModal = ({ posList = [], onSubmit }) => {
   );
 };
 
-export default VariantModal;
+export default SUbsubCategoryModal;

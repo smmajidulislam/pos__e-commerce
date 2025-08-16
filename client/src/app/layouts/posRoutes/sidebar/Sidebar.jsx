@@ -23,6 +23,7 @@ const menuItems = [
       { label: "Create Product", link: "/createproduct" },
       { label: "Category", link: "/category" },
       { label: "Sub Category", link: "/subcategory" },
+      { label: "Sub Sub Category", link: "/subsubcategory" },
       { label: "Brands", link: "/brands" },
       { label: "Variants List", link: "/variants" },
       { label: "Warranties", link: "/warranties" },
@@ -41,8 +42,8 @@ const menuItems = [
     icon: <FaChartBar />,
     subItems: [
       { label: "Purchase", link: "/purchase" },
-      { label: "Purchase Order", link: "/purchase-order" },
-      { label: "Purchase Return", link: "/purchase-return" },
+      { label: "Purchase Order", link: "/purchaseorder" },
+      { label: "Purchase Return", link: "/purchasereturn" },
     ],
   },
   {
