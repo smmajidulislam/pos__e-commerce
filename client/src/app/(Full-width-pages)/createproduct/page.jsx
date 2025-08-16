@@ -2,13 +2,17 @@
 import AttributeSelector from "@/app/components/product/AttributeSelector";
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 const Page = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm();
+
+  const [previewImages, setPreviewImages] = useState([]);
 
   const onSubmit = (data) => {
     console.log("Product Data:", data);
@@ -22,6 +26,12 @@ const Page = () => {
     Weight: ["kg", "Ton"],
     Unit: ["Pcs", "Ban", "Bag", "Taka", "Ven"],
     Length: ["Feet", "Meter", "Square Feet", "Roll"],
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages(previewUrls);
   };
 
   return (
@@ -69,23 +79,26 @@ const Page = () => {
           </div>
 
           {/* SKU */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4 relative">
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
             <label className={labelClass}>SKU</label>
-            <input
-              {...register("sku")}
-              placeholder="Enter SKU"
-              className={`${inputClass} pr-24`} // right padding for button
-            />
-            <button
-              type="button"
-              onClick={() => {
-                const generatedSKU = "SKU-" + Math.floor(Math.random() * 10000);
-                register("sku").onChange({ target: { value: generatedSKU } });
-              }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
-            >
-              Generate
-            </button>
+            <div className="relative flex">
+              <input
+                {...register("sku")}
+                placeholder="Enter SKU"
+                className={`${inputClass} pr-24`}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const generatedSKU =
+                    "SKU-" + Math.floor(Math.random() * 10000);
+                  setValue("sku", generatedSKU);
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 !text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+              >
+                Generate
+              </button>
+            </div>
           </div>
 
           {/* Category */}
@@ -124,50 +137,28 @@ const Page = () => {
           </div>
 
           {/* Item Code */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4 relative">
-            <label className={labelClass}>Item Code</label>
-            <input
-              {...register("itemCode")}
-              placeholder="Enter Item Code"
-              className={`${inputClass} pr-24`} // right padding for button
-            />
-            <button
-              type="button"
-              onClick={() => {
-                // এখানে generated code logic
-                const generatedCode =
-                  "ITEM-" + Math.floor(Math.random() * 10000);
-                // যদি react-hook-form use করো:
-                register("itemCode").onChange({
-                  target: { value: generatedCode },
-                });
-              }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
-            >
-              Generate
-            </button>
-          </div>
-
-          {/* Description */}
-          <div className="w-full px-2 mb-4">
-            <label className={labelClass}>Description</label>
-            <textarea
-              {...register("description")}
-              placeholder="Please Enter Description (Max 60 characters)"
-              maxLength={60}
-              className="border border-gray-300 rounded-md p-2 w-full h-24 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-            />
-          </div>
-
-          {/* Images */}
           <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-            <label className={labelClass}>Images</label>
-            <input
-              type="file"
-              {...register("images")}
-              className={inputClass}
-              multiple
-            />
+            <label className={labelClass}>Item Code</label>
+            <div className="relative flex">
+              <input
+                {...register("itemCode")}
+                placeholder="Enter Item Code"
+                className={`${inputClass} pr-24`}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const generatedCode =
+                    "ITEM-" + Math.floor(Math.random() * 10000);
+                  setValue("itemCode", generatedCode);
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 
+             bg-blue-600  !text-white 
+             px-3 py-1 rounded hover:bg-blue-700 text-sm"
+              >
+                Generate
+              </button>
+            </div>
           </div>
 
           {/* Quantity Alert */}
@@ -199,17 +190,82 @@ const Page = () => {
               className={inputClass}
             />
           </div>
-          {/* Attribute - grouped checkboxes (styled) */}
+
+          {/* Attribute - grouped checkboxes */}
           <AttributeSelector
             register={register}
             attributeGroups={attributeGroups}
           />
 
+          {/* Images */}
+          <div className="w-full px-2 mb-6">
+            <label className={labelClass}>Images</label>
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* File Input */}
+              <input
+                type="file"
+                {...register("images")}
+                className={inputClass + " md:w-1/3 w-full"}
+                multiple
+                onChange={handleImageChange}
+              />
+
+              {/* Preview Images (Always Visible) */}
+              <div className="flex-1 border border-dashed border-gray-400 rounded-md p-3">
+                {previewImages.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {previewImages.map((src, index) => (
+                      <div
+                        key={index}
+                        className="relative w-full h-32 border rounded overflow-hidden group"
+                      >
+                        {/* Image */}
+                        <img
+                          src={src}
+                          alt={`Preview ${index}`}
+                          className="w-full h-full object-cover"
+                        />
+
+                        {/* Delete Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = previewImages.filter(
+                              (_, i) => i !== index
+                            );
+                            setPreviewImages(updated);
+                          }}
+                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-80 hover:opacity-100 transition"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+                    No images selected
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* Description */}
+          <div className="w-full px-2 mb-4">
+            <label className={labelClass}>Description</label>
+            <textarea
+              {...register("description")}
+              placeholder="Please Enter Description (Max 60 characters)"
+              maxLength={60}
+              className="border border-gray-300 rounded-md p-2 w-full h-24 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+            />
+          </div>
+
           {/* Submit Button */}
-          <div className="w-full px-2 mt-4">
+          <div className="w-full px-2 mt-6 flex justify-end">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+              className="bg-blue-600 !text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
               Save Product
             </button>
