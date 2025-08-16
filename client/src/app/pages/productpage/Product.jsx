@@ -88,36 +88,43 @@ const Products = () => {
   return (
     <>
       {/* Filtering */}
-      <div>
+      <div className="mb-4">
         <Filtering onSubmit={handleSubmit}>
           {(register) => (
             <>
               <div className="flex flex-wrap justify-center align-center w-full gap-4">
-                <div className="w-1/5">
+                <div className="w-1/6">
                   <input
                     {...register("product")}
                     placeholder="Product"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/5">
+                <div className="w-1/6">
                   <input
                     {...register("brand")}
                     placeholder="Brand"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/5">
+                <div className="w-1/6">
                   <input
                     {...register("category")}
                     placeholder="Category"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/5">
+                <div className="w-1/6">
                   <input
-                    {...register("price")}
-                    placeholder="Price"
+                    {...register("Min-price")}
+                    placeholder="Min-Price"
+                    className="border border-gray-300 p-3 rounded w-full h-12"
+                  />
+                </div>
+                <div className="w-1/6">
+                  <input
+                    {...register("Max-price")}
+                    placeholder="Max-Price"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
