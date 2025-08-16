@@ -51,14 +51,14 @@ const BrandsModal = ({ posList = [], onSubmit }) => {
               {/* Category Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Category Name
+                  Brand Name
                 </label>
                 <input
-                  {...register("categoryName", {
-                    required: "Category is required",
+                  {...register("brandName", {
+                    required: "Brand name is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter category name"
+                  placeholder="Enter Brand name"
                 />
                 {errors.categoryName && (
                   <span className="text-red-500 text-sm">

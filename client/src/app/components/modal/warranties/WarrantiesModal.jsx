@@ -26,7 +26,7 @@ const WarrantiesModal = ({ posList = [], onSubmit }) => {
         onClick={() => setIsOpen(true)}
         className="flex items-center px-4 py-2 bg-green-500 !text-white rounded hover:bg-green-600"
       >
-        <FaPlus className="mr-2" /> Add New Variant
+        <FaPlus className="mr-2" /> Add New Warranties
       </button>
 
       {/* Modal */}
@@ -41,7 +41,7 @@ const WarrantiesModal = ({ posList = [], onSubmit }) => {
               <FaTimes />
             </button>
 
-            <h2 className="text-xl font-bold mb-4">Add New Variant</h2>
+            <h2 className="text-xl font-bold mb-4">Add New Warranties</h2>
 
             <form
               onSubmit={handleSubmit(handleFormSubmit)}
@@ -50,11 +50,11 @@ const WarrantiesModal = ({ posList = [], onSubmit }) => {
               {/* Category Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Category Name
+                  Warranties Name
                 </label>
                 <input
-                  {...register("categoryName", {
-                    required: "Category is required",
+                  {...register("WarrantiesName", {
+                    required: "Warranties name is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Enter category name"
@@ -95,7 +95,7 @@ const WarrantiesModal = ({ posList = [], onSubmit }) => {
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save Category
+                  Save Warranties
                 </button>
               </div>
             </form>
