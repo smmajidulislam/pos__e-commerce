@@ -1,14 +1,14 @@
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
-import Dashbord from "@/app/pages/dashbord/Dashbord";
 
-const Homepage = () => {
+import Warranties from "@/app/pages/warranties/Warranties";
+const page = () => {
   return (
     <>
       <PosLayout>
-        <Dashbord />
+        <Warranties />
       </PosLayout>
     </>
   );
 };
 
-export default Homepage;
+export default page;

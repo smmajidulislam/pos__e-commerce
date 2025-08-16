@@ -1,14 +1,14 @@
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
-import Dashbord from "@/app/pages/dashbord/Dashbord";
+import Brands from "@/app/pages/brands/Brands";
 
-const Homepage = () => {
+const page = () => {
   return (
     <>
       <PosLayout>
-        <Dashbord />
+        <Brands />
       </PosLayout>
     </>
   );
 };
 
-export default Homepage;
+export default page;
