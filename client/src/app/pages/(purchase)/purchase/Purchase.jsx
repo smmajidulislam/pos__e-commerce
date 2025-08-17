@@ -57,7 +57,7 @@ const Purchase = () => {
         </div>
         {/* Unit Name (select field) */}
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-          <label className={labelClass}>Unit Name</label>
+          <label className={labelClass}>Variant Name</label>
           <select {...register("unitName")} className={inputClass}>
             <option value="">Select Unit</option>
             {units.map((unit) => (
@@ -69,7 +69,7 @@ const Purchase = () => {
         </div>
         {/* Status (select field) */}
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-          <label className={labelClass}>Unit Name</label>
+          <label className={labelClass}>Status</label>
           <select {...register("status")} className={inputClass}>
             <option value="">Select Status</option>
             {statuss?.map((s, i) => (
@@ -112,7 +112,7 @@ const Purchase = () => {
             </div>
             {/* Purchase Price secrect key*/}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Purchase Secrect Key</label>
+              <label className={labelClass}>Purchase Amount Key</label>
               <input
                 {...register("purchasePriceSecret")}
                 className={inputClass}

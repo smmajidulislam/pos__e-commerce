@@ -45,7 +45,6 @@ const menuItems = [
     subItems: [
       { label: "Purchase", link: "/purchase" },
       { label: "Purchase Order", link: "/purchaseorder" },
-      { label: "Purchase Return", link: "/purchasereturn" },
     ],
   },
   {
