@@ -89,67 +89,43 @@ const Warranties = () => {
 
   return (
     <>
-      {/* Filtering */}
-      <div className="mb-4">
-        <Filtering onSubmit={handleSubmitFilter}>
-          {(register) => (
-            <div className="flex flex-wrap justify-center gap-4 w-full">
-              <div className="w-1/5">
-                <input
-                  {...register("product")}
-                  placeholder="Product"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-              <div className="w-1/5">
-                <input
-                  {...register("brand")}
-                  placeholder="Brand"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-              <div className="w-1/6">
-                <input
-                  {...register("category")}
-                  placeholder="Category"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-              <div className="w-1/6">
-                <input
-                  {...register("min-price")}
-                  placeholder="min-Price"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-              <div className="w-1/6">
-                <input
-                  {...register("max-price")}
-                  placeholder="max-Price"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-            </div>
-          )}
-        </Filtering>
-      </div>
+      <div className="bg-white shadow-md rounded-xl p-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          {/* Filtering */}
+          <div className="flex-1">
+            <Filtering onSubmit={handleSubmitFilter}>
+              {(register) => (
+                <div className="flex flex-wrap gap-4">
+                  <div className="w-full sm:w-1/2 lg:w-1/3">
+                    <input
+                      {...register("category")}
+                      placeholder="Search by Brands"
+                      className="border border-gray-300 rounded-lg px-4 h-12 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                    />
+                  </div>
+                </div>
+              )}
+            </Filtering>
+          </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end m-2 gap-2">
-        <button className="flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          <FaPrint className="mr-2" /> Print
-        </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 !text-white rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition">
+              <FaPrint /> Print
+            </button>
 
-        <button className="flex items-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-          <FaFilePdf className="mr-2" /> PDF
-        </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 !text-white rounded-lg shadow hover:from-red-600 hover:to-red-700 transition">
+              <FaFilePdf /> PDF
+            </button>
 
-        <WarrantiesModal
-          isOpen={isAddModalOpen}
-          setIsOpen={setIsAddModalOpen}
-          onSubmit={handleAddCategory}
-          posList={[{ id: 1, name: "POS 1" }]}
-        />
+            <WarrantiesModal
+              isOpen={isAddModalOpen}
+              setIsOpen={setIsAddModalOpen}
+              onSubmit={handleAddCategory}
+              posList={[{ id: 1, name: "POS 1" }]}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Add Category Modal */}

@@ -6,6 +6,8 @@ import {
   FaShoppingCart,
   FaChartBar,
   FaCog,
+  FaDollarSign,
+  FaUndo,
 } from "react-icons/fa";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -14,10 +16,10 @@ import { useTheme } from "@/app/hooks/theme/useThem";
 import Link from "next/link";
 
 const menuItems = [
-  { label: "Dashboard", icon: <FaTachometerAlt />, link: "/" },
+  { label: "Dashboard", icon: <FaTachometerAlt size={20} />, link: "/" },
   {
     label: "Products",
-    icon: <MdOutlineShoppingBag />,
+    icon: <MdOutlineShoppingBag size={20} />,
     subItems: [
       { label: "Product", link: "/product" },
       { label: "Create Product", link: "/createproduct" },
@@ -31,7 +33,7 @@ const menuItems = [
   },
   {
     label: "Stock",
-    icon: <FaTachometerAlt />,
+    icon: <FaTachometerAlt size={20} />,
     subItems: [
       { label: "Stock Adjustment", link: "/stock-adjustment" },
       { label: "Stock Transfer", link: "/stock-transfer" },
@@ -39,7 +41,7 @@ const menuItems = [
   },
   {
     label: "Purchase",
-    icon: <FaChartBar />,
+    icon: <FaChartBar size={20} />,
     subItems: [
       { label: "Purchase", link: "/purchase" },
       { label: "Purchase Order", link: "/purchaseorder" },
@@ -47,22 +49,31 @@ const menuItems = [
     ],
   },
   {
+    label: "Priceing",
+    icon: <FaDollarSign size={20} />,
+    link: "/priceing",
+  },
+  {
+    label: "Return Product",
+    icon: <FaUndo size={20} />,
+    link: "/returnproduct",
+  },
+  {
     label: "Sales",
-    icon: <FaShoppingCart />,
+    icon: <FaShoppingCart size={20} />,
     subItems: [
       { label: "Sales", link: "/sales" },
-      { label: "Sales Return", link: "/sales-return" },
       { label: "Pos", link: "/pos" },
     ],
   },
   {
     label: "Coupons",
-    icon: <FaTags />,
+    icon: <FaTags size={20} />,
     subItems: [{ label: "Manage Coupons", link: "/coupons" }],
   },
   {
     label: "People",
-    icon: <FaTags />,
+    icon: <FaTags size={20} />,
     subItems: [
       { label: "Customers", link: "/customers" },
       { label: "Suppliers", link: "/suppliers" },
@@ -75,7 +86,7 @@ const menuItems = [
   },
   {
     label: "Reports",
-    icon: <FaTags />,
+    icon: <FaTags size={20} />,
     subItems: [
       { label: "Sales Report", link: "/reports/sales" },
       { label: "Purchase Report", link: "/reports/purchase" },
@@ -86,7 +97,7 @@ const menuItems = [
       { label: "Profit & Loss Report", link: "/reports/profit-loss" },
     ],
   },
-  { label: "Settings", icon: <FaCog />, link: "/settings" },
+  { label: "Settings", icon: <FaCog size={20} />, link: "/settings" },
 ];
 
 const Sidebar = () => {
@@ -97,6 +108,7 @@ const Sidebar = () => {
 
   const toggleMenu = (label) =>
     setOpenMenu((prev) => (prev === label ? "" : label));
+
   const setActiveSubItem = (label) => {
     setActiveSub(label);
     setMobileOpen(false); // Mobile e item select hole close
@@ -130,17 +142,17 @@ const Sidebar = () => {
                       onClick={() => toggleMenu(item.label)}
                       className="flex justify-between items-center w-full px-3 py-2 hover:bg-gray-200 rounded-lg transition-all duration-200"
                     >
-                      <span className="flex items-center gap-3 text-lg">
-                        <span className="text-xl">{item.icon}</span>
+                      <span className="flex items-center gap-3">
+                        <span>{item.icon}</span>
                         {(mobileOpen || !isCollapsed) && (
                           <span className="font-medium">{item.label}</span>
                         )}
                       </span>
                       {(mobileOpen || !isCollapsed) &&
                         (openMenu === item.label ? (
-                          <IoIosArrowDown className="text-lg" />
+                          <IoIosArrowDown size={16} />
                         ) : (
-                          <IoIosArrowForward className="text-lg" />
+                          <IoIosArrowForward size={16} />
                         ))}
                     </button>
 
@@ -179,10 +191,10 @@ const Sidebar = () => {
                 ) : (
                   <Link
                     href={item.link}
-                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-200 rounded-lg text-lg transition-all duration-200"
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-200 rounded-lg transition-all duration-200"
                     onClick={() => mobileOpen && setMobileOpen(false)}
                   >
-                    <span className="text-xl">{item.icon}</span>
+                    <span>{item.icon}</span>
                     {(mobileOpen || !isCollapsed) && (
                       <span className="font-medium">{item.label}</span>
                     )}
