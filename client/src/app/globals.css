@@ -9,6 +9,14 @@
   --text-danger: #e31d1c;
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @layer base {
   /* Colors */
   .bg-primary {

@@ -1,10 +1,10 @@
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
-import PurchaseReturn from "@/app/pages/(purchase)/purchaseretrun/PurchaseReturn";
+import PurchaseReport from "@/app/pages/(reports)/PurchaseReport";
 
 const page = () => {
   return (
     <PosLayout>
-      <PurchaseReturn />
+      <PurchaseReport />
     </PosLayout>
   );
 };
