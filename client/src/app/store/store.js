@@ -1,5 +1,36 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+// Import all APIs
+import { userApi } from "../features/api/userApi";
+import { productApi } from "../features/api/productApi";
+import { categoryApi } from "../features/api/categoryApi";
+import { productImageApi } from "../features/api/productImageApi";
+import { brandApi } from "../features/api/brandApi";
+import { attributeApi } from "../features/api/attributeApi";
+import { storeApi } from "../features/api/storeApi";
+import { warehouseApi } from "../features/api/warehouseApi";
+
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    // API reducers
+    [userApi.reducerPath]: userApi.reducer,
+    [productApi.reducerPath]: productApi.reducer,
+    [categoryApi.reducerPath]: categoryApi.reducer,
+    [productImageApi.reducerPath]: productImageApi.reducer,
+    [brandApi.reducerPath]: brandApi.reducer,
+    [attributeApi.reducerPath]: attributeApi.reducer,
+    [storeApi.reducerPath]: storeApi.reducer,
+    [warehouseApi.reducerPath]: warehouseApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat([
+      userApi.middleware,
+      productApi.middleware,
+      categoryApi.middleware,
+      productImageApi.middleware,
+      brandApi.middleware,
+      attributeApi.middleware,
+      storeApi.middleware,
+      warehouseApi.middleware,
+    ]),
 });

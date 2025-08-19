@@ -109,21 +109,23 @@ const Category = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 !text-white rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition">
+          <div className="flex flex-wrap gap-3">
+            <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 !text-white rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition">
               <FaPrint /> Print
             </button>
 
-            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 !text-white rounded-lg shadow hover:from-red-600 hover:to-red-700 transition">
+            <button className="flex-1 min-w-[120px] flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 !text-white rounded-lg shadow hover:from-red-600 hover:to-red-700 transition">
               <FaFilePdf /> PDF
             </button>
 
-            <AddCategoryModal
-              isOpen={isAddModalOpen}
-              setIsOpen={setIsAddModalOpen}
-              onSubmit={handleAddCategory}
-              posList={[{ id: 1, name: "POS 1" }]}
-            />
+            <div className="flex-1 min-w-[120px]">
+              <AddCategoryModal
+                isOpen={isAddModalOpen}
+                setIsOpen={setIsAddModalOpen}
+                onSubmit={handleAddCategory}
+                posList={[{ id: 1, name: "POS 1" }]}
+              />
+            </div>
           </div>
         </div>
       </div>

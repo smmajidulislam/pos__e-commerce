@@ -10,6 +10,7 @@ const Header = () => {
   const { isCollapsed, setIsCollapsed } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement
@@ -24,7 +25,6 @@ const Header = () => {
     }
   };
 
-  // Listen for ESC key / fullscreen change
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
@@ -39,7 +39,7 @@ const Header = () => {
   const toggleProfileMenu = () => setProfileOpen((prev) => !prev);
 
   return (
-    <header className="bg-white h-16 flex items-center shadow-sm border-b border-gray-200 px-4 sticky top-0 z-50">
+    <header className="bg-white h-16 flex items-center shadow-sm border-b border-gray-200 px-4 sticky top-0 z-50 flex-wrap">
       {/* Left: Sidebar toggle + Logo */}
       <div
         className={`flex items-center transition-all duration-300 ${
@@ -58,17 +58,30 @@ const Header = () => {
         </button>
 
         {!isCollapsed && (
-          <span className="ml-1 text-lg font-semibold">POS Dashboard</span>
+          <span className="ml-2 text-lg font-semibold">POS Dashboard</span>
         )}
       </div>
 
-      {/* Middle: Search Bar (desktop only) */}
-      <div className={`flex-1 mx-4 hidden lg:flex`}>
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-300"
-        />
+      {/* Middle: Input + Select + Button */}
+      <div className="flex-1 flex items-center gap-2 mx-4">
+        {/* Input - Left 1/3 */}
+        <div className="flex-1 md:flex-3 lg:flex-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-300"
+          />
+        </div>
+
+        {/* Select - Middle 1/3 */}
+        <div className="flex-1">
+          <select className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-300">
+            <option value="">Select POS</option>
+            <option value="product">Product Management</option>
+            <option value="sales">Sales</option>
+            <option value="customer">Customer</option>
+          </select>
+        </div>
       </div>
 
       {/* Right: Fullscreen + Profile */}
@@ -101,13 +114,22 @@ const Header = () => {
           {profileOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-md border rounded-md z-50">
               <ul>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <li
+                  onClick={() => setProfileOpen(false)}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                >
                   Profile
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <li
+                  onClick={() => setProfileOpen(false)}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                >
                   Settings
                 </li>
-                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                <li
+                  onClick={() => setProfileOpen(false)}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                >
                   Logout
                 </li>
               </ul>

@@ -8,6 +8,7 @@ import {
   FaCog,
   FaDollarSign,
   FaUndo,
+  FaMoneyBillAlt,
 } from "react-icons/fa";
 import { MdOutlineShoppingBag } from "react-icons/md";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -16,7 +17,7 @@ import { useTheme } from "@/app/hooks/theme/useThem";
 import Link from "next/link";
 
 const menuItems = [
-  { label: "Dashboard", icon: <FaTachometerAlt size={20} />, link: "/" },
+  { label: "Dashboard", icon: <FaTachometerAlt size={20} />, link: "/shop" },
   {
     label: "Products",
     icon: <MdOutlineShoppingBag size={20} />,
@@ -27,6 +28,7 @@ const menuItems = [
       { label: "Sub Category", link: "/subcategory" },
       { label: "Sub Sub Category", link: "/subsubcategory" },
       { label: "Brands", link: "/brands" },
+      { label: "Expense", link: "/expense" },
       { label: "Variants List", link: "/variants" },
       { label: "Warranties", link: "/warranties" },
     ],
@@ -35,8 +37,8 @@ const menuItems = [
     label: "Stock",
     icon: <FaTachometerAlt size={20} />,
     subItems: [
-      { label: "Stock Adjustment", link: "/stock-adjustment" },
-      { label: "Stock Transfer", link: "/stock-transfer" },
+      { label: "Stock Adjustment", link: "/stockadjustment" },
+      { label: "Stock Transfer", link: "/stocktransffer" },
     ],
   },
   {
@@ -55,7 +57,7 @@ const menuItems = [
   {
     label: "Return Product",
     icon: <FaUndo size={20} />,
-    link: "/returnproduct",
+    link: "/return",
   },
   {
     label: "Sales",
@@ -63,6 +65,7 @@ const menuItems = [
     subItems: [
       { label: "Sales", link: "/sales" },
       { label: "Pos", link: "/pos" },
+      { label: "Sales list", link: "/saleslist" },
     ],
   },
   {
@@ -83,17 +86,17 @@ const menuItems = [
       { label: "Warehouses", link: "/warehouses" },
     ],
   },
+  { label: "Expense", icon: <FaMoneyBillAlt size={20} />, link: "/expense" },
   {
     label: "Reports",
     icon: <FaTags size={20} />,
     subItems: [
-      { label: "Sales Report", link: "/reports/sales" },
-      { label: "Purchase Report", link: "/reports/purchase" },
-      { label: "Sales Summary", link: "/reports/sales-summary" },
-      { label: "Low Stock Report", link: "/reports/low-stock" },
-      { label: "Supplier Report", link: "/reports/supplier" },
-      { label: "Customer Report", link: "/reports/customer" },
-      { label: "Profit & Loss Report", link: "/reports/profit-loss" },
+      { label: "Sales Report", link: "/salesreports" },
+      { label: "Purchase Report", link: "/purchasereports" },
+      { label: "Low Stock Report", link: "/lowstockreports" },
+      { label: "Supplier Report", link: "/supplierreports" },
+      { label: "Customer Report", link: "/customerreports" },
+      { label: "Profit & Loss Report", link: "/profitlossreports" },
     ],
   },
   { label: "Settings", icon: <FaCog size={20} />, link: "/settings" },

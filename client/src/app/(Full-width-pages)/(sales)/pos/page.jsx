@@ -1,7 +1,7 @@
-import React from "react";
+import PosPageLayout from "@/app/layouts/posRoutes/PosPageLayout";
 
 const page = () => {
-  return <div>hello world</div>;
+  return <PosPageLayout />;
 };
 
 export default page;

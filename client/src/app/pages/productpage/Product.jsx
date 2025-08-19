@@ -93,35 +93,35 @@ const Products = () => {
           {(register) => (
             <>
               <div className="flex flex-wrap justify-center align-center w-full gap-4">
-                <div className="w-1/6">
+                <div className="w-full sm:w-1/6">
                   <input
                     {...register("product")}
                     placeholder="Product"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/6">
+                <div className="w-full sm:w-1/6">
                   <input
                     {...register("brand")}
                     placeholder="Brand"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/6">
+                <div className="w-full sm:w-1/6">
                   <input
                     {...register("category")}
                     placeholder="Category"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/6">
+                <div className="w-full sm:w-1/6">
                   <input
                     {...register("Min-price")}
                     placeholder="Min-Price"
                     className="border border-gray-300 p-3 rounded w-full h-12"
                   />
                 </div>
-                <div className="w-1/6">
+                <div className="w-full sm:w-1/6">
                   <input
                     {...register("Max-price")}
                     placeholder="Max-Price"
@@ -136,14 +136,14 @@ const Products = () => {
       <div className="flex justify-end m-2 gap-2">
         <button
           // onClick={handlePrint}
-          className="flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="flex items-center px-4 py-2 bg-blue-500 !text-white rounded hover:bg-blue-600"
         >
           <FaPrint className="mr-2" /> Print
         </button>
 
         <button
           // onClick={handlePdf}
-          className="flex items-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          className="flex items-center px-4 py-2 bg-red-500 !text-white rounded hover:bg-red-600"
         >
           <FaFilePdf className="mr-2" /> PDF
         </button>
