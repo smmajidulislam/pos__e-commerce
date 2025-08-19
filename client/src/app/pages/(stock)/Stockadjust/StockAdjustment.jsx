@@ -2,7 +2,7 @@
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddStockModal from "@/app/components/modal/(stock)/stockadjust/AddStockModal";
 import EditStockModal from "@/app/components/modal/(stock)/stockadjust/EditStokModal";
@@ -136,11 +136,11 @@ const StockAdjustment = () => {
 
       {/* Action Buttons */}
       <div className="flex justify-end m-2 gap-2">
-        <button className="flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        <button className="flex items-center px-4 py-2 bg-blue-500 !text-white rounded hover:bg-blue-600">
           <FaPrint className="mr-2" /> Print
         </button>
 
-        <button className="flex items-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+        <button className="flex items-center px-4 py-2 bg-red-500 !text-white rounded hover:bg-red-600">
           <FaFilePdf className="mr-2" /> PDF
         </button>
 

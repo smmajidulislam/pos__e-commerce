@@ -1,11 +1,12 @@
 "use client";
+import { useCreateAttributeMutation } from "@/app/features/api/attributeApi";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
-const VariantModal = ({ posList = [], onSubmit }) => {
+const VariantModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const [createAttribute] = useCreateAttributeMutation();
   const {
     register,
     handleSubmit,
@@ -13,8 +14,8 @@ const VariantModal = ({ posList = [], onSubmit }) => {
     reset,
   } = useForm();
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
+  const handleFormSubmit = async (data) => {
+    await createAttribute(data);
     reset();
     setIsOpen(false);
   };
@@ -53,38 +54,15 @@ const VariantModal = ({ posList = [], onSubmit }) => {
                   Variant Name
                 </label>
                 <input
-                  {...register("VariantName", {
+                  {...register("name", {
                     required: "Variant is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Enter Variant name"
                 />
-                {errors.categoryName && (
+                {errors.name && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
-                  </span>
-                )}
-              </div>
-
-              {/* POS Select */}
-              <div>
-                <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
-                </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
-                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
-                  <span className="text-red-500 text-sm">
-                    {errors.posId.message}
+                    {errors.name.message}
                   </span>
                 )}
               </div>

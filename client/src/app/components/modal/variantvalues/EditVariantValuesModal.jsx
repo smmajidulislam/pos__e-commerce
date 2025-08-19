@@ -1,42 +1,36 @@
 "use client";
-
+import { useUpdateAttributeValueMutation } from "@/app/features/api/attributeApi";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
-import Swal from "sweetalert2";
-import { useUpdateStoreMutation } from "@/app/features/api/storeApi";
 
-const EditStoreModal = ({ isOpen, setIsOpen, initialData }) => {
+const EditVariantValuesModal = ({ isOpen, setIsOpen, initialData }) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-  const [updateStore] = useUpdateStoreMutation();
 
-  // initial data fill
+  const [updateAttribute] = useUpdateAttributeValueMutation();
+
   useEffect(() => {
     if (initialData) {
-      reset({ name: initialData.name });
+      reset({
+        id: initialData.id,
+        name: initialData.name || "",
+      });
     } else {
-      reset({ name: "" });
+      reset({ id: "", name: "" });
     }
   }, [initialData, reset]);
 
   const handleFormSubmit = async (data) => {
-    if (!initialData?.id) return;
-
     try {
-      await updateStore({ id: initialData.id, ...data }).unwrap();
-      Swal.fire("Success", "Store updated successfully", "success");
+      await updateAttribute({ id: data.id, name: data.name }).unwrap();
       setIsOpen(false);
     } catch (err) {
-      Swal.fire(
-        "Error",
-        err?.data?.message || "Failed to update store",
-        "error"
-      );
+      console.error("Update failed:", err);
     }
   };
 
@@ -52,15 +46,20 @@ const EditStoreModal = ({ isOpen, setIsOpen, initialData }) => {
           <FaTimes />
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Edit Store</h2>
+        <h2 className="text-xl font-bold mb-4">Edit Variant</h2>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          {/* Hidden ID (for update) */}
+          <input type="hidden" {...register("id")} />
+
           <div>
             <label className="block mb-1 font-semibold text-gray-700">
-              Store Name
+              Variant Name
             </label>
             <input
-              {...register("name", { required: "Store name is required" })}
+              {...register("name", {
+                required: "Variant name is required",
+              })}
               className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
             {errors.name && (
@@ -75,7 +74,7 @@ const EditStoreModal = ({ isOpen, setIsOpen, initialData }) => {
               type="submit"
               className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Update Store
+              Update Variant
             </button>
           </div>
         </form>
@@ -84,4 +83,4 @@ const EditStoreModal = ({ isOpen, setIsOpen, initialData }) => {
   );
 };
 
-export default EditStoreModal;
+export default EditVariantValuesModal;

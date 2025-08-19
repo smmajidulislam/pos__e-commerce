@@ -5,7 +5,6 @@ export const warehouseApi = createApi({
   reducerPath: "warehouseApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
-    credentials: "include",
   }),
   tagTypes: ["Warehouses"],
   endpoints: (builder) => ({

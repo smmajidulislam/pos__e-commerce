@@ -1,11 +1,14 @@
 // components/modal/category/CategoryModal.jsx
 "use client";
+import { useCreateWarehouseMutation } from "@/app/features/api/warehouseApi";
+import { MyErrorSawal, MySuccessSawal } from "@/app/utils/Sawal";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
 const WareHouseModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [createWarehouse, { isLoading }] = useCreateWarehouseMutation();
 
   const {
     register,
@@ -14,10 +17,20 @@ const WareHouseModal = () => {
     reset,
   } = useForm();
 
-  const handleFormSubmit = (data) => {
-    console.log(data);
-    reset();
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    try {
+      // API call
+      const response = await createWarehouse(data);
+      if (response) MySuccessSawal(true, 3000);
+      reset();
+      setIsOpen(false);
+    } catch (err) {
+      MyErrorSawal(
+        true,
+        3000,
+        err?.data?.message || "Failed to create warehouse"
+      );
+    }
   };
 
   return (
@@ -48,21 +61,21 @@ const WareHouseModal = () => {
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* Category Name */}
+              {/* Warehouse Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
                   Warehouse Name
                 </label>
                 <input
-                  {...register("Warehouse", {
-                    required: "Warehouse is required",
+                  {...register("name", {
+                    required: "Warehouse name is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter Warehouse name"
+                  placeholder="Enter warehouse name"
                 />
-                {errors.categoryName && (
+                {errors.name && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
+                    {errors.name.message}
                   </span>
                 )}
               </div>
@@ -71,9 +84,10 @@ const WareHouseModal = () => {
               <div className="flex justify-end mt-2">
                 <button
                   type="submit"
-                  className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
+                  disabled={isLoading}
+                  className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
                 >
-                  Save Warehouse
+                  {isLoading ? "Saving..." : "Save Warehouse"}
                 </button>
               </div>
             </form>

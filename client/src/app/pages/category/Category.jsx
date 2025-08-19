@@ -1,11 +1,17 @@
 "use client";
-import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
 import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+
+import Filtering from "@/app/components/filter/Filtering";
 import AddCategoryModal from "@/app/components/modal/category/CategoryModal";
 import EditCategoryModal from "@/app/components/modal/category/EditCategoryModal";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  useGetCategoriesQuery,
+  useDeleteCategoryMutation,
+} from "@/app/features/api/categoryApi";
+import { MySuccessSawal, MyErrorSawal } from "@/app/utils/Sawal";
 
 const Category = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,39 +20,31 @@ const Category = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
-  const prod = [
-    {
-      id: 1,
-      name: "Product 1",
-      category: "Category A",
-      price: 100,
-      sku: "SKU001",
-      itemCode: "IC001",
-    },
-    {
-      id: 2,
-      name: "Product 2",
-      category: "Category B",
-      price: 150,
-      sku: "SKU002",
-      itemCode: "IC002",
-    },
-  ];
+  const { data, refetch, isLoading } = useGetCategoriesQuery();
+  const [deleteCategory] = useDeleteCategoryMutation();
 
-  const handleSubmitFilter = (data) => {
-    console.log("Filter data:", data);
+  // Filtering handler
+  const handleSubmitFilter = (filterData) => {
+    console.log("Filter data:", filterData);
   };
 
-  const handleAddCategory = (data) => {
-    console.log("Added Category:", data);
+  // Delete handler
+  const handleDelete = async (record) => {
+    try {
+      await deleteCategory(record.id).unwrap();
+      MySuccessSawal(true, 2000, "Category deleted successfully!");
+      refetch();
+    } catch (err) {
+      console.error(err);
+      MyErrorSawal(true, 2000, "Failed to delete category!");
+    }
   };
 
-  const handleEditCategory = (data) => {
-    console.log("Edited Category:", data);
-  };
-
-  const handleDelete = (record) => {
-    console.log("Deleted:", record);
+  // Date formatter
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-GB", options);
   };
 
   const columns = [
@@ -57,13 +55,24 @@ const Category = () => {
       width: 60,
     },
     { title: "Category", dataIndex: "name", key: "name", width: 200 },
-    { title: "Pos", dataIndex: "category", key: "category", width: 150 },
+
     {
-      title: "Qty",
-      dataIndex: "price",
-      key: "price",
-      width: 100,
-      render: (price) => `$${price}`,
+      title: "Products",
+      key: "productCount",
+      width: 120,
+      render: (_, record) => record.product?.length || 0,
+    },
+    {
+      title: "Sub-categories",
+      key: "subCategoriesCount",
+      width: 140,
+      render: (_, record) => record.subCategories?.length || 0,
+    },
+    {
+      title: "Created At",
+      key: "createdAt",
+      width: 150,
+      render: (_, record) => formatDate(record.createdAt),
     },
     {
       title: "Action",
@@ -89,6 +98,7 @@ const Category = () => {
 
   return (
     <>
+      {/* Filter + Action Buttons */}
       <div className="bg-white shadow-md rounded-xl p-4 mb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Filtering */}
@@ -122,32 +132,30 @@ const Category = () => {
               <AddCategoryModal
                 isOpen={isAddModalOpen}
                 setIsOpen={setIsAddModalOpen}
-                onSubmit={handleAddCategory}
-                posList={[{ id: 1, name: "POS 1" }]}
+                onSuccess={refetch}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Add Category Modal */}
       {/* Edit Category Modal */}
-      <EditCategoryModal
-        isOpen={isEditModalOpen}
-        setIsOpen={setIsEditModalOpen}
-        initialData={editingData}
-        onSubmit={handleEditCategory}
-        posList={[
-          { id: 1, name: "POS 1" },
-          { id: 2, name: "POS 2" },
-        ]}
-      />
-      {/* Table */}
+      {isEditModalOpen && (
+        <EditCategoryModal
+          isOpen={isEditModalOpen}
+          setIsOpen={setIsEditModalOpen}
+          initialData={editingData}
+          onSuccess={refetch}
+        />
+      )}
+
+      {/* Categories Table */}
       <div className="mt-2 overflow-x-auto">
         <Table
           columns={columns}
-          dataSource={prod}
+          dataSource={data?.categories || []}
           rowKey="id"
+          loading={isLoading}
           pagination={{
             current: currentPage,
             pageSize: pageSize,

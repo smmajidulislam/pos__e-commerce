@@ -1,15 +1,10 @@
 "use client";
+import { useUpdateAttributeMutation } from "@/app/features/api/attributeApi";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
 
-const EditVariantModal = ({
-  isOpen,
-  setIsOpen,
-  onSubmit,
-  initialData,
-  posList = [],
-}) => {
+const EditVariantModal = ({ isOpen, setIsOpen, initialData }) => {
   const {
     register,
     handleSubmit,
@@ -17,17 +12,26 @@ const EditVariantModal = ({
     formState: { errors },
   } = useForm();
 
+  const [updateAttribute] = useUpdateAttributeMutation();
+
   useEffect(() => {
     if (initialData) {
-      reset(initialData);
+      reset({
+        id: initialData.id,
+        name: initialData.name || "",
+      });
     } else {
-      reset({ categoryName: "", posId: "" });
+      reset({ id: "", name: "" });
     }
   }, [initialData, reset]);
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    try {
+      await updateAttribute({ id: data.id, name: data.name }).unwrap();
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
   };
 
   if (!isOpen) return null;
@@ -45,41 +49,22 @@ const EditVariantModal = ({
         <h2 className="text-xl font-bold mb-4">Edit Variant</h2>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          {/* Hidden ID (for update) */}
+          <input type="hidden" {...register("id")} />
+
           <div>
             <label className="block mb-1 font-semibold text-gray-700">
               Variant Name
             </label>
             <input
-              {...register("categoryName", {
-                required: "Category is required",
+              {...register("name", {
+                required: "Variant name is required",
               })}
               className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            {errors.categoryName && (
+            {errors.name && (
               <span className="text-red-500 text-sm">
-                {errors.categoryName.message}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">
-              Select POS
-            </label>
-            <select
-              {...register("posId", { required: "Please select a POS" })}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">Select POS</option>
-              {posList.map((pos) => (
-                <option key={pos.id} value={pos.id}>
-                  {pos.name}
-                </option>
-              ))}
-            </select>
-            {errors.posId && (
-              <span className="text-red-500 text-sm">
-                {errors.posId.message}
+                {errors.name.message}
               </span>
             )}
           </div>

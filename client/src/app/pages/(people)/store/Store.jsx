@@ -1,11 +1,19 @@
 "use client";
-import Filtering from "@/app/components/filter/Filtering";
+
 import React, { useState } from "react";
-import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { Table, Space, Skeleton } from "antd";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import EditStoreModal from "@/app/components/modal/(people)/store/StoreEditModal";
 import StoresModal from "@/app/components/modal/(people)/store/StoreModal";
+import EditStoreModal from "@/app/components/modal/(people)/store/StoreEditModal";
+import Filtering from "@/app/components/filter/Filtering";
+import Swal from "sweetalert2";
+
+import {
+  useGetStoresQuery,
+  useCreateStoreMutation,
+  useDeleteStoreMutation,
+} from "@/app/features/api/storeApi";
 
 const Store = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,55 +22,76 @@ const Store = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
-  const prod = [
-    {
-      id: 1,
-      name: "Gulshan Store",
-      category: "29-MAY-2023", // Created তারিখ
-      price: 1000,
-      sku: "ST001",
-      itemCode: "IC001",
-    },
-    {
-      id: 2,
-      name: "Banani Super Shop",
-      category: "29-MAY-2023",
-      price: 1500,
-      sku: "ST002",
-      itemCode: "IC002",
-    },
-    {
-      id: 3,
-      name: "Dhanmondi Mart",
-      category: "29-MAY-2023",
-      price: 1200,
-      sku: "ST003",
-      itemCode: "IC003",
-    },
-    {
-      id: 4,
-      name: "Mirpur Mega Store",
-      category: "29-MAY-2023",
-      price: 1800,
-      sku: "ST004",
-      itemCode: "IC004",
-    },
-  ];
+  // RTK Query hooks
+  const { data, isLoading, isError, error } = useGetStoresQuery();
+  const [createStore] = useCreateStoreMutation();
+
+  const [deleteStore] = useDeleteStoreMutation();
+
+  const stores = data?.stores || [];
+
+  // Loading Skeleton
+  if (isLoading) {
+    return (
+      <div className="space-y-2 p-4">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} active paragraph={{ rows: 1 }} />
+        ))}
+      </div>
+    );
+  }
+
+  // Error SweetAlert
+  if (isError) {
+    Swal.fire({
+      title: "Error",
+      text: error?.data?.message || "Something went wrong",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
 
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
   };
 
-  const handleAddCategory = (data) => {
-    console.log("Added Category:", data);
+  // Add Store
+  const handleAddStore = async (data) => {
+    try {
+      await createStore(data).unwrap();
+      Swal.fire("Success", "Store created successfully", "success");
+      setIsAddModalOpen(false);
+    } catch (err) {
+      Swal.fire(
+        "Error",
+        err?.data?.message || "Failed to create store",
+        "error"
+      );
+    }
   };
 
-  const handleEditCategory = (data) => {
-    console.log("Edited Category:", data);
-  };
-
+  // Delete Store
   const handleDelete = (record) => {
-    console.log("Deleted:", record);
+    Swal.fire({
+      title: "Are you sure?",
+      text: `You want to delete store "${record.name}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Delete",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteStore(record.id).unwrap();
+          Swal.fire("Deleted!", "Store has been deleted.", "success");
+        } catch (err) {
+          Swal.fire(
+            "Error",
+            err?.data?.message || "Failed to delete store",
+            "error"
+          );
+        }
+      }
+    });
   };
 
   const columns = [
@@ -73,8 +102,13 @@ const Store = () => {
       width: 60,
     },
     { title: "Store", dataIndex: "name", key: "name", width: 200 },
-    { title: "Created", dataIndex: "category", key: "category", width: 150 },
-
+    {
+      title: "Created",
+      dataIndex: "reatedAt",
+      key: "created",
+      width: 150,
+      render: (text) => new Date(text).toLocaleDateString(),
+    },
     {
       title: "Action",
       key: "action",
@@ -98,7 +132,7 @@ const Store = () => {
   ];
 
   return (
-    <>
+    <div className="p-4">
       {/* Filtering */}
       <div className="mb-4">
         <Filtering onSubmit={handleSubmitFilter}>
@@ -138,30 +172,22 @@ const Store = () => {
         <StoresModal
           isOpen={isAddModalOpen}
           setIsOpen={setIsAddModalOpen}
-          onSubmit={handleAddCategory}
-          posList={[{ id: 1, name: "POS 1" }]}
+          onSubmit={handleAddStore}
         />
       </div>
 
-      {/* Add Category Modal */}
-
-      {/* Edit Category Modal */}
+      {/* Edit Modal */}
       <EditStoreModal
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
         initialData={editingData}
-        onSubmit={handleEditCategory}
-        posList={[
-          { id: 1, name: "POS 1" },
-          { id: 2, name: "POS 2" },
-        ]}
       />
 
       {/* Table */}
       <div className="mt-2 overflow-x-auto">
         <Table
           columns={columns}
-          dataSource={prod}
+          dataSource={stores}
           rowKey="id"
           pagination={{
             current: currentPage,
@@ -174,7 +200,7 @@ const Store = () => {
           scroll={{ x: "max-content" }}
         />
       </div>
-    </>
+    </div>
   );
 };
 

@@ -56,10 +56,10 @@ const Customers = () => {
       render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
       width: 60,
     },
-    { title: "Category", dataIndex: "name", key: "name", width: 200 },
-    { title: "Pos", dataIndex: "category", key: "category", width: 150 },
+    { title: "Customer Name", dataIndex: "name", key: "name", width: 200 },
+    { title: "Phone", dataIndex: "category", key: "category", width: 150 },
     {
-      title: "Qty",
+      title: "Address",
       dataIndex: "price",
       key: "price",
       width: 100,

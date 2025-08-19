@@ -1,6 +1,9 @@
 "use client";
 
+import { useGetStoresQuery } from "@/app/features/api/storeApi";
 import { useTheme } from "@/app/hooks/theme/useThem";
+import { MyErrorSawal } from "@/app/utils/Sawal";
+import useStoreToken from "@/app/utils/storetoken/saveStoeToken";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaEllipsisV, FaExpand } from "react-icons/fa";
@@ -11,32 +14,52 @@ const Header = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const { data, isLoading, isError } = useGetStoresQuery();
+
+  // useStoreToken hook
+  const {
+    store: selectedStore,
+    save: saveStore,
+    loading: tokenLoading,
+  } = useStoreToken();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Fullscreen toggle
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement
         .requestFullscreen()
         .then(() => setIsFullscreen(true))
-        .catch((err) => console.error(err));
+        .catch(console.error);
     } else {
       document
         .exitFullscreen()
         .then(() => setIsFullscreen(false))
-        .catch((err) => console.error(err));
+        .catch(console.error);
     }
   };
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) {
-        setIsFullscreen(false);
-      }
-    };
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () =>
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
-
   const toggleProfileMenu = () => setProfileOpen((prev) => !prev);
+
+  // Store change handler
+  const handleStoreChange = (storeObj) => {
+    if (!storeObj) return;
+    saveStore(storeObj);
+    setErrorMessage(""); // clear error on selection
+    console.log("Selected Store:", storeObj);
+  };
+
+  // Initial validation: token matches available stores
+  useEffect(() => {
+    if (!tokenLoading && data?.stores) {
+      if (selectedStore) {
+        const matched = data.stores.find((s) => s.id === selectedStore.id);
+        if (!matched) MyErrorSawal(true, 8000, "Please select a store");
+      } else {
+        MyErrorSawal(true, 8000, "Please select a store");
+      }
+    }
+  }, [tokenLoading, data, selectedStore]);
 
   return (
     <header className="bg-white h-16 flex items-center shadow-sm border-b border-gray-200 px-4 sticky top-0 z-50 flex-wrap">
@@ -56,15 +79,14 @@ const Header = () => {
             <IoIosArrowBack size={20} />
           )}
         </button>
-
         {!isCollapsed && (
           <span className="ml-2 text-lg font-semibold">POS Dashboard</span>
         )}
       </div>
 
-      {/* Middle: Input + Select + Button */}
+      {/* Middle: Input + Select */}
       <div className="flex-1 flex items-center gap-2 mx-4">
-        {/* Input - Left 1/3 */}
+        {/* Search Input */}
         <div className="flex-1 md:flex-3 lg:flex-4">
           <input
             type="text"
@@ -73,28 +95,44 @@ const Header = () => {
           />
         </div>
 
-        {/* Select - Middle 1/3 */}
+        {/* Select POS Stores */}
         <div className="flex-1">
-          <select className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-300">
-            <option value="">Select POS</option>
-            <option value="product">Product Management</option>
-            <option value="sales">Sales</option>
-            <option value="customer">Customer</option>
-          </select>
+          {isLoading || tokenLoading ? (
+            <div className="h-12 w-full bg-gray-200 animate-pulse rounded-md" />
+          ) : (
+            <select
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-300"
+              value={selectedStore?.id || ""}
+              onChange={(e) => {
+                const storeId = e.target.value;
+                const storeObj = data?.stores?.find((s) => s.id === storeId);
+                handleStoreChange(storeObj);
+              }}
+            >
+              <option value="">Select POS</option>
+              {isError && <option>Error loading stores</option>}
+              {data?.stores?.map((store) => (
+                <option key={store.id} value={store.id}>
+                  {store.name}
+                </option>
+              ))}
+            </select>
+          )}
+          {errorMessage && (
+            <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+          )}
         </div>
       </div>
 
       {/* Right: Fullscreen + Profile */}
       <div className="flex items-center gap-2 lg:gap-4 ml-auto">
-        {/* Fullscreen button */}
         <button
-          onClick={() => toggleFullscreen()}
+          onClick={toggleFullscreen}
           className="p-2 hover:bg-gray-200 rounded"
         >
           <FaExpand size={18} />
         </button>
 
-        {/* Profile with dropdown */}
         <div className="relative">
           <button
             onClick={toggleProfileMenu}

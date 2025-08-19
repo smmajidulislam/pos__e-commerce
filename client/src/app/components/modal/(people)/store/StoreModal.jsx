@@ -1,11 +1,13 @@
-// components/modal/category/CategoryModal.jsx
 "use client";
+import { useCreateStoreMutation } from "@/app/features/api/storeApi";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
+import Swal from "sweetalert2";
 
-const StoresModal = ({ onSubmit }) => {
+const StoresModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [createStore] = useCreateStoreMutation();
 
   const {
     register,
@@ -14,10 +16,27 @@ const StoresModal = ({ onSubmit }) => {
     reset,
   } = useForm();
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
-    reset();
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    try {
+      const result = await createStore(data).unwrap();
+      // Success message
+      Swal.fire({
+        icon: "success",
+        title: "Store Created",
+        text: `Store "${result.name}" has been created successfully!`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      reset();
+      setIsOpen(false);
+    } catch (err) {
+      // Error message
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err?.data?.message || "Failed to create store",
+      });
+    }
   };
 
   return (
@@ -48,21 +67,21 @@ const StoresModal = ({ onSubmit }) => {
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* Category Name */}
+              {/* Store Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
                   Store Name
                 </label>
                 <input
-                  {...register("categoryName", {
-                    required: "Category is required",
+                  {...register("name", {
+                    required: "Store name is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter category name"
+                  placeholder="Enter store name"
                 />
-                {errors.categoryName && (
+                {errors.name && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
+                    {errors.name.message}
                   </span>
                 )}
               </div>

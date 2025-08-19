@@ -5,7 +5,6 @@ export const attributeApi = createApi({
   reducerPath: "attributeApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
-    credentials: "include",
   }),
   tagTypes: ["Attributes"],
   endpoints: (builder) => ({
@@ -45,6 +44,10 @@ export const attributeApi = createApi({
       invalidatesTags: ["Attributes"],
     }),
     // Attribute values
+    getAttributeValues: builder.query({
+      query: () => "/attributes/values",
+      providesTags: ["Attributes"],
+    }),
     getAttributeValueById: builder.query({
       query: (id) => `/attributes/values/${id}`,
       providesTags: ["Attributes"],
@@ -82,6 +85,7 @@ export const {
   useCreateAttributeMutation,
   useUpdateAttributeMutation,
   useDeleteAttributeMutation,
+  useGetAttributeValuesQuery,
   useGetAttributeValueByIdQuery,
   useCreateAttributeValueMutation,
   useUpdateAttributeValueMutation,
