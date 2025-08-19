@@ -3,8 +3,31 @@ import AttributeSelector from "@/app/components/product/AttributeSelector";
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { useGetStoresQuery } from "@/app/features/api/storeApi";
+import { useGetWarehousesQuery } from "@/app/features/api/warehouseApi";
+import { useGetCategoriesQuery } from "@/app/features/api/categoryApi";
+import { useGetBrandsQuery } from "@/app/features/api/brandApi";
+import {
+  useGetAttributesQuery,
+  useGetAttributeValuesQuery,
+} from "@/app/features/api/attributeApi";
 
 const Page = () => {
+  // api call
+  const { data: storeData } = useGetStoresQuery();
+  const { data: wareHouseData } = useGetWarehousesQuery();
+  const { data: categoryData } = useGetCategoriesQuery();
+  const { data: brandData } = useGetBrandsQuery();
+  const { data: attributeData } = useGetAttributesQuery();
+  const { data: attributeValuesData } = useGetAttributeValuesQuery();
+  console.log(
+    storeData,
+    wareHouseData,
+    categoryData,
+    brandData,
+    attributeData,
+    attributeValuesData
+  );
   const {
     register,
     handleSubmit,

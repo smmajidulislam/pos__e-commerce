@@ -1,27 +1,53 @@
 "use client";
-import React, { useEffect } from "react";
+import { useUpdateWarehouseMutation } from "@/app/features/api/warehouseApi";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
+import { MyErrorSawal } from "@/app/utils/Sawal"; // Optional: error alert
 
 const EditWarehouseModal = ({ isOpen, setIsOpen, initialData }) => {
+  const [updateWarehouse, { isLoading }] = useUpdateWarehouseMutation();
+  const [apiError, setApiError] = useState("");
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: { warehouse: "" },
+  });
 
+  // Initial data set করা
   useEffect(() => {
     if (initialData) {
-      reset(initialData);
+      reset({ warehouse: initialData.name || "" });
     } else {
-      reset({ categoryName: "", posId: "" });
+      reset({ warehouse: "" });
     }
   }, [initialData, reset]);
 
-  const handleFormSubmit = (data) => {
-    console.log(data);
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    if (!initialData?.id) return;
+
+    try {
+      // API call
+      const result = await updateWarehouse({
+        id: initialData.id,
+        name: data.warehouse,
+      }).unwrap(); // RTK Query unwrap করে success/error handle
+
+      console.log("Updated Warehouse:", result);
+      setIsOpen(false); // Modal close
+    } catch (err) {
+      console.error("Update Error:", err);
+      setApiError(err?.data?.message || "Error updating warehouse");
+      MyErrorSawal(
+        false,
+        3000,
+        err?.data?.message || "Error updating warehouse"
+      );
+    }
   };
 
   if (!isOpen) return null;
@@ -45,23 +71,28 @@ const EditWarehouseModal = ({ isOpen, setIsOpen, initialData }) => {
             </label>
             <input
               {...register("warehouse", {
-                required: "Warehouse is required",
+                required: "Warehouse name is required",
               })}
               className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter warehouse name"
+              disabled={isLoading} // loading এ disable
             />
-            {errors.categoryName && (
+            {errors.warehouse && (
               <span className="text-red-500 text-sm">
-                {errors.categoryName.message}
+                {errors.warehouse.message}
               </span>
             )}
           </div>
 
+          {apiError && <p className="text-red-500 text-sm">{apiError}</p>}
+
           <div className="flex justify-end mt-2">
             <button
               type="submit"
-              className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
+              className={`bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center justify-center`}
+              disabled={isLoading}
             >
-              Update Warehouse
+              {isLoading ? "Updating..." : "Update Warehouse"}
             </button>
           </div>
         </form>

@@ -2,32 +2,37 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
+import { useUpdateBrandMutation } from "@/app/features/api/brandApi";
+import { MySuccessSawal, MyErrorSawal } from "@/app/utils/Sawal";
 
-const EditBrandsModal = ({
-  isOpen,
-  setIsOpen,
-  onSubmit,
-  initialData,
-  posList = [],
-}) => {
+const EditBrandsModal = ({ isOpen, setIsOpen, initialData }) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
+  const [updateBrand, { isLoading }] = useUpdateBrandMutation();
 
   useEffect(() => {
     if (initialData) {
-      reset(initialData);
+      reset({ name: initialData.name });
     } else {
-      reset({ categoryName: "", posId: "" });
+      reset({ name: "" });
     }
   }, [initialData, reset]);
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    if (!initialData) return;
+
+    try {
+      await updateBrand({ id: initialData.id, name: data.name }).unwrap();
+      MySuccessSawal(true, 3000, "Brand updated successfully!");
+      setIsOpen(false);
+    } catch (err) {
+      console.error("Update Error:", err);
+      MyErrorSawal(true, 3000, "Failed to update brand!");
+    }
   };
 
   if (!isOpen) return null;
@@ -50,36 +55,12 @@ const EditBrandsModal = ({
               Brand Name
             </label>
             <input
-              {...register("BrandName", {
-                required: "Brand name is required",
-              })}
+              {...register("name", { required: "Brand name is required" })}
               className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            {errors.categoryName && (
+            {errors.name && (
               <span className="text-red-500 text-sm">
-                {errors.categoryName.message}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">
-              Select POS
-            </label>
-            <select
-              {...register("posId", { required: "Please select a POS" })}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">Select POS</option>
-              {posList.map((pos) => (
-                <option key={pos.id} value={pos.id}>
-                  {pos.name}
-                </option>
-              ))}
-            </select>
-            {errors.posId && (
-              <span className="text-red-500 text-sm">
-                {errors.posId.message}
+                {errors.name.message}
               </span>
             )}
           </div>
@@ -87,9 +68,10 @@ const EditBrandsModal = ({
           <div className="flex justify-end mt-2">
             <button
               type="submit"
-              className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
+              disabled={isLoading}
+              className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
             >
-              Update Brand
+              {isLoading ? "Updating..." : "Update Brand"}
             </button>
           </div>
         </form>

@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import { Table, Space } from "antd";
 import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useGetProductsQuery } from "@/app/features/api/productApi";
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const { data, isError, error } = useGetProductsQuery();
   const prod = [
     {
       id: 1,
@@ -25,6 +27,7 @@ const Products = () => {
       itemCode: "IC002",
     },
   ];
+  console.log(data, isError, error);
 
   const handleSubmit = (data) => {
     console.log("Submitted data:", data);

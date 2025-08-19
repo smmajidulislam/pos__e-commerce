@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
-const AddStockTransffer = ({ posList = [], onSubmit }) => {
+const AddStockTransffer = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
@@ -42,50 +42,85 @@ const AddStockTransffer = ({ posList = [], onSubmit }) => {
               <FaTimes />
             </button>
 
-            <h2 className="text-xl font-bold mb-4">Add New Brand</h2>
+            <h2 className="text-xl font-bold mb-4">Add New Transfer</h2>
 
             <form
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* Category Name */}
+              {/* Product Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Category Name
+                  Product Name
                 </label>
                 <input
-                  {...register("categoryName", {
-                    required: "Category is required",
+                  {...register("productName", {
+                    required: "Product name is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter category name"
+                  placeholder="Enter product name"
                 />
-                {errors.categoryName && (
+                {errors.productName && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
+                    {errors.productName.message}
+                  </span>
+                )}
+              </div>
+              {/* From */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  From
+                </label>
+                <input
+                  {...register("from", {
+                    required: "From field is required",
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter source"
+                />
+                {errors.from && (
+                  <span className="text-red-500 text-sm">
+                    {errors.from.message}
                   </span>
                 )}
               </div>
 
-              {/* POS Select */}
+              {/* To */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
+                  To
                 </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
+                <input
+                  {...register("to", {
+                    required: "To field is required",
+                  })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
+                  placeholder="Enter destination"
+                />
+                {errors.to && (
                   <span className="text-red-500 text-sm">
-                    {errors.posId.message}
+                    {errors.to.message}
+                  </span>
+                )}
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Quantity
+                </label>
+                <input
+                  type="number"
+                  {...register("qty", {
+                    required: "Quantity is required",
+                    min: { value: 1, message: "Quantity must be at least 1" },
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter quantity"
+                />
+                {errors.qty && (
+                  <span className="text-red-500 text-sm">
+                    {errors.qty.message}
                   </span>
                 )}
               </div>
@@ -96,7 +131,7 @@ const AddStockTransffer = ({ posList = [], onSubmit }) => {
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save Brand
+                  Save
                 </button>
               </div>
             </form>

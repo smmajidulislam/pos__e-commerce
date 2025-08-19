@@ -27,7 +27,7 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
         onClick={() => setIsOpen(true)}
         className="flex items-center px-4 py-2 bg-green-500 !text-white rounded hover:bg-green-600"
       >
-        <FaPlus className="mr-2" /> Add New Coupon
+        <FaPlus className="mr-2" /> Add New
       </button>
 
       {/* Modal */}
@@ -48,44 +48,63 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* Category Name */}
+              {/* Purchase Ref */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Category Name
+                  Purchase Reference
                 </label>
                 <input
-                  {...register("categoryName", {
-                    required: "Category is required",
+                  {...register("purchaseRef", {
+                    required: "Purchase reference is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter category name"
+                  placeholder="Enter purchase reference"
                 />
-                {errors.categoryName && (
+                {errors.purchaseRef && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
+                    {errors.purchaseRef.message}
                   </span>
                 )}
               </div>
 
-              {/* POS Select */}
+              {/* Buying Quantity */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
+                  Buying Quantity
                 </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
+                <input
+                  type="number"
+                  {...register("buyingQty", {
+                    required: "Buying quantity is required",
+                    min: { value: 1, message: "Quantity must be at least 1" },
+                  })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
+                  placeholder="Enter buying quantity"
+                />
+                {errors.buyingQty && (
                   <span className="text-red-500 text-sm">
-                    {errors.posId.message}
+                    {errors.buyingQty.message}
+                  </span>
+                )}
+              </div>
+
+              {/* Received Quantity */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Received Quantity
+                </label>
+                <input
+                  type="number"
+                  {...register("receivedQty", {
+                    required: "Received quantity is required",
+                    min: { value: 0, message: "Quantity cannot be negative" },
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter received quantity"
+                />
+                {errors.receivedQty && (
+                  <span className="text-red-500 text-sm">
+                    {errors.receivedQty.message}
                   </span>
                 )}
               </div>
@@ -96,7 +115,7 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save Brand
+                  Save
                 </button>
               </div>
             </form>

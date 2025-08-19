@@ -1,11 +1,13 @@
 // components/modal/category/CategoryModal.jsx
 "use client";
+import { useCreateBrandMutation } from "@/app/features/api/brandApi";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
-const BrandsModal = ({ posList = [], onSubmit }) => {
+const BrandsModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [createBrand] = useCreateBrandMutation();
 
   const {
     register,
@@ -14,8 +16,9 @@ const BrandsModal = ({ posList = [], onSubmit }) => {
     reset,
   } = useForm();
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
+  const handleFormSubmit = async (data) => {
+    const response = await createBrand(data).unwrap();
+    console.log(response);
     reset();
     setIsOpen(false);
   };
@@ -54,38 +57,15 @@ const BrandsModal = ({ posList = [], onSubmit }) => {
                   Brand Name
                 </label>
                 <input
-                  {...register("brandName", {
+                  {...register("name", {
                     required: "Brand name is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Enter Brand name"
                 />
-                {errors.categoryName && (
+                {errors.name && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
-                  </span>
-                )}
-              </div>
-
-              {/* POS Select */}
-              <div>
-                <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
-                </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
-                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
-                  <span className="text-red-500 text-sm">
-                    {errors.posId.message}
+                    {errors.name.message}
                   </span>
                 )}
               </div>

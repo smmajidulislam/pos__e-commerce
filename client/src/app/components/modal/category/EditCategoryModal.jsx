@@ -1,33 +1,43 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
+import { useUpdateCategoryMutation } from "@/app/features/api/categoryApi";
+import { MySuccessSawal, MyErrorSawal } from "@/app/utils/Sawal";
 
-const EditCategoryModal = ({
-  isOpen,
-  setIsOpen,
-  onSubmit,
-  initialData,
-  posList = [],
-}) => {
+const EditCategoryModal = ({ isOpen, setIsOpen, initialData, onSuccess }) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
+  const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
   useEffect(() => {
     if (initialData) {
-      reset(initialData);
+      reset({
+        name: initialData.name || "",
+      });
     } else {
-      reset({ categoryName: "", posId: "" });
+      reset({ name: "", posId: "" });
     }
   }, [initialData, reset]);
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    if (!initialData?.id) return;
+    try {
+      await updateCategory({
+        id: initialData.id,
+        name: data.name,
+      }).unwrap();
+
+      MySuccessSawal(true, 2000, "Category updated successfully!");
+      setIsOpen(false);
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      MyErrorSawal(true, 2000, "Failed to update category!");
+    }
   };
 
   if (!isOpen) return null;
@@ -50,36 +60,12 @@ const EditCategoryModal = ({
               Category Name
             </label>
             <input
-              {...register("categoryName", {
-                required: "Category is required",
-              })}
+              {...register("name", { required: "Category is required" })}
               className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            {errors.categoryName && (
+            {errors.name && (
               <span className="text-red-500 text-sm">
-                {errors.categoryName.message}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">
-              Select POS
-            </label>
-            <select
-              {...register("posId", { required: "Please select a POS" })}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">Select POS</option>
-              {posList.map((pos) => (
-                <option key={pos.id} value={pos.id}>
-                  {pos.name}
-                </option>
-              ))}
-            </select>
-            {errors.posId && (
-              <span className="text-red-500 text-sm">
-                {errors.posId.message}
+                {errors.name.message}
               </span>
             )}
           </div>
@@ -87,9 +73,10 @@ const EditCategoryModal = ({
           <div className="flex justify-end mt-2">
             <button
               type="submit"
-              className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
+              disabled={isLoading}
+              className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
             >
-              Update Category
+              {isLoading ? "Updating..." : "Update Category"}
             </button>
           </div>
         </form>

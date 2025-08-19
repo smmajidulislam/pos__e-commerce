@@ -42,13 +42,49 @@ const AddCustomerModal = ({ posList = [], onSubmit }) => {
               <FaTimes />
             </button>
 
-            <h2 className="text-xl font-bold mb-4">Add New Brand</h2>
+            <h2 className="text-xl font-bold mb-4">Add New Customer</h2>
 
             <form
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* Category Name */}
+              {/* Customer Name */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Customer Name
+                </label>
+                <input
+                  {...register("name", {
+                    required: "Category is required",
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter customer name"
+                />
+                {errors.name && (
+                  <span className="text-red-500 text-sm">
+                    {errors.name.message}
+                  </span>
+                )}
+              </div>
+              {/* Customer No */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Customer Mobile
+                </label>
+                <input
+                  {...register("phone", {
+                    required: "phone is required",
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter phone no"
+                />
+                {errors.phone && (
+                  <span className="text-red-500 text-sm">
+                    {errors.phone.message}
+                  </span>
+                )}
+              </div>
+              {/* Customer Address */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
                   Category Name
@@ -67,36 +103,13 @@ const AddCustomerModal = ({ posList = [], onSubmit }) => {
                 )}
               </div>
 
-              {/* POS Select */}
-              <div>
-                <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
-                </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
-                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
-                  <span className="text-red-500 text-sm">
-                    {errors.posId.message}
-                  </span>
-                )}
-              </div>
-
               {/* Submit */}
               <div className="flex justify-end mt-2">
                 <button
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save Brand
+                  Save <Customer></Customer>
                 </button>
               </div>
             </form>

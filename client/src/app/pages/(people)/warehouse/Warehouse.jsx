@@ -1,11 +1,18 @@
+// pages/Warehouse.jsx
 "use client";
+
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import EditWarehouseModal from "@/app/components/modal/(people)/warehouse/WarehouseEditModal";
 import WareHouseModal from "@/app/components/modal/(people)/warehouse/WarehouseModal";
+import {
+  useGetWarehousesQuery,
+  useDeleteWarehouseMutation,
+} from "@/app/features/api/warehouseApi";
+import { MyErrorSawal, MySuccessSawal } from "@/app/utils/Sawal";
 
 const Warehouse = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,49 +21,29 @@ const Warehouse = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
-  const prod = [
-    {
-      id: 1,
-      name: "Gulshan Store",
-      category: "29-MAY-2023", // Created তারিখ
-      price: 1000,
-      sku: "ST001",
-      itemCode: "IC001",
-    },
-    {
-      id: 2,
-      name: "Banani Super Shop",
-      category: "29-MAY-2023",
-      price: 1500,
-      sku: "ST002",
-      itemCode: "IC002",
-    },
-    {
-      id: 3,
-      name: "Dhanmondi Mart",
-      category: "29-MAY-2023",
-      price: 1200,
-      sku: "ST003",
-      itemCode: "IC003",
-    },
-    {
-      id: 4,
-      name: "Mirpur Mega Store",
-      category: "29-MAY-2023",
-      price: 1800,
-      sku: "ST004",
-      itemCode: "IC004",
-    },
-  ];
+  // API থেকে warehouses load
+  const {
+    data: warehousesData,
+    isLoading: isWarehousesLoading,
+    isError: isWarehousesError,
+  } = useGetWarehousesQuery();
+  const [deleteWarehouse] = useDeleteWarehouseMutation();
 
+  // Table-এর dataSource
+  const dataSource = warehousesData?.warehouses || [];
+
+  // Delete function
+  const handleDelete = async (record) => {
+    await deleteWarehouse(record.id);
+    MySuccessSawal(true, 3000, `Deleted warehouse: ${record.name}`);
+  };
+
+  // Filter handler
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
   };
 
-  const handleDelete = (record) => {
-    console.log("Deleted:", record);
-  };
-
+  // Table columns
   const columns = [
     {
       title: "SL",
@@ -65,8 +52,13 @@ const Warehouse = () => {
       width: 60,
     },
     { title: "Warehouse", dataIndex: "name", key: "name", width: 200 },
-    { title: "Created", dataIndex: "category", key: "category", width: 150 },
-
+    {
+      title: "Created",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 150,
+      render: (text) => new Date(text).toLocaleDateString(),
+    },
     {
       title: "Action",
       key: "action",
@@ -88,6 +80,11 @@ const Warehouse = () => {
       ),
     },
   ];
+
+  // Error handling
+  if (isWarehousesError) {
+    MyErrorSawal(false, 3000, "Error loading warehouses");
+  }
 
   return (
     <>
@@ -130,9 +127,7 @@ const Warehouse = () => {
         <WareHouseModal isOpen={isAddModalOpen} setIsOpen={setIsAddModalOpen} />
       </div>
 
-      {/* Add Category Modal */}
-
-      {/* Edit Category Modal */}
+      {/* Edit Modal */}
       <EditWarehouseModal
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
@@ -141,20 +136,24 @@ const Warehouse = () => {
 
       {/* Table */}
       <div className="mt-2 overflow-x-auto">
-        <Table
-          columns={columns}
-          dataSource={prod}
-          rowKey="id"
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            onChange: (page, pageSize) => {
-              setCurrentPage(page);
-              setPageSize(pageSize);
-            },
-          }}
-          scroll={{ x: "max-content" }}
-        />
+        {isWarehousesLoading ? (
+          <div className="h-48 w-full bg-gray-200 animate-pulse rounded" />
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={dataSource}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              onChange: (page, pageSize) => {
+                setCurrentPage(page);
+                setPageSize(pageSize);
+              },
+            }}
+            scroll={{ x: "max-content" }}
+          />
+        )}
       </div>
     </>
   );
