@@ -2,7 +2,7 @@
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddCustomerModal from "@/app/components/modal/(people)/customer/AddCustomerModal";
 import EditCustomerModal from "@/app/components/modal/(people)/customer/EditCustomerModal";

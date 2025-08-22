@@ -1,36 +1,26 @@
 "use client";
-import AttributeSelector from "@/app/components/product/AttributeSelector";
-import PosLayout from "@/app/layouts/posRoutes/PosLayout";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import Swal from "sweetalert2";
 import { useGetStoresQuery } from "@/app/features/api/storeApi";
 import { useGetWarehousesQuery } from "@/app/features/api/warehouseApi";
 import { useGetCategoriesQuery } from "@/app/features/api/categoryApi";
 import { useGetBrandsQuery } from "@/app/features/api/brandApi";
 import { useGetAttributesQuery } from "@/app/features/api/attributeApi";
-import { useCreateProductMutation } from "@/app/features/api/productApi";
+import { useUpdateProductMutation } from "@/app/features/api/productApi";
+import AttributeSelector from "@/app/components/product/AttributeSelector";
 
-const Page = () => {
-  // API calls
+const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
   const { data: storeData } = useGetStoresQuery();
   const { data: wareHouseData } = useGetWarehousesQuery();
   const { data: categoryData } = useGetCategoriesQuery();
   const { data: brandData } = useGetBrandsQuery();
   const { data: attributeValuesData } = useGetAttributesQuery();
 
-  const [createProduct] = useCreateProductMutation();
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm();
+  const [updateProduct] = useUpdateProductMutation();
   const [previewImages, setPreviewImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
 
-  // Attribute groups
   const attributeGroups = {};
   if (attributeValuesData?.attributes) {
     attributeValuesData.attributes.forEach((attrGroup) => {
@@ -38,10 +28,45 @@ const Page = () => {
     });
   }
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      store: productData?.storeId || "",
+      warehouse: productData?.warehouseId || "",
+      productName: productData?.name || "",
+      sku: productData?.sku || "",
+      slug: productData?.slug || "",
+      category: productData?.categoryId || "",
+      subCategory: productData?.subCategoryId || "",
+      subSubCategory: productData?.subSubCategoryId || "",
+      brand: productData?.brandId || "",
+      quantityAlert: productData?.quantityAlert || "",
+      attributes: productData?.attributeValueIds || [],
+      price: productData?.price || "",
+      description: productData?.description || "",
+    },
+  });
+
+  useEffect(() => {
+    if (productData?.images) {
+      setPreviewImages(productData.images); // assume URL array
+    }
+  }, [productData]);
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImageFiles(files);
+    const previewUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages(previewUrls);
+  };
+
   const onSubmit = async (data) => {
     try {
-      // Optional field handling: শুধু non-empty values add হবে
-      const productData = {
+      const updatedData = {
         ...(data.productName && { name: data.productName }),
         ...(data.description && { description: data.description }),
         ...(data.sku && { sku: data.sku }),
@@ -56,47 +81,41 @@ const Page = () => {
           attributeValueIds: data.attributes,
         }),
         ...(data.price ? { price: Number(data.price) } : {}),
-        ...(data.itemCode && { itemCode: data.itemCode }),
         ...(data.quantityAlert
           ? { quantityAlert: Number(data.quantityAlert) }
           : {}),
-        ...(data.manufacturedDate && {
-          manufacturedDate: data.manufacturedDate,
-        }),
-        ...(data.expiryOn && { expiryOn: data.expiryOn }),
+        // images handling will depend on backend
       };
 
-      console.log("Sending Product Data:", productData);
-
-      const response = await createProduct(productData).unwrap();
+      await updateProduct({ id: productData.id, ...updatedData }).unwrap();
 
       Swal.fire({
         icon: "success",
-        title: "Success",
-        text: "Product created successfully!",
+        title: "Updated",
+        text: "Product updated successfully!",
       });
 
-      console.log("Created Product:", response);
+      setIsOpen(false);
     } catch (err) {
       console.error(err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to create product!",
+        text: "Failed to update product!",
       });
     }
   };
+
+  if (!isOpen) return null;
 
   const inputClass =
     "border border-gray-300 rounded-md p-2 h-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-400";
   const labelClass = "block mb-1 font-semibold text-gray-700";
 
   return (
-    <PosLayout>
-      <div className="p-4 md:p-6">
-        <h1 className="text-2xl font-bold mb-2">New Product</h1>
-        <p className="mb-6 text-gray-600">Create new Product</p>
-
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center overflow-auto p-4">
+      <div className="bg-white rounded-md w-full max-w-4xl p-6">
+        <h2 className="text-xl font-bold mb-4">Edit Product</h2>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-wrap -mx-2"
@@ -142,12 +161,6 @@ const Page = () => {
             )}
           </div>
 
-          {/* Slug */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-            <label className={labelClass}>Slug</label>
-            <input {...register("slug")} className={inputClass} />
-          </div>
-
           {/* SKU */}
           <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
             <label className={labelClass}>SKU</label>
@@ -182,91 +195,64 @@ const Page = () => {
             </select>
           </div>
 
-          {/* Sub Category */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-            <label className={labelClass}>Sub Category</label>
-            <select {...register("subCategory")} className={inputClass}>
-              <option value="">Choose</option>
-              {categoryData?.categories?.flatMap((cat) =>
-                cat.subCategories?.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.name}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-
-          {/* Sub Sub Category */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-            <label className={labelClass}>Sub Sub Category</label>
-            <select {...register("subSubCategory")} className={inputClass}>
-              <option value="">Choose</option>
-              {categoryData?.categories?.flatMap((cat) =>
-                cat.subCategories?.flatMap((sub) =>
-                  sub.subSubCategories?.map((subSub) => (
-                    <option key={subSub.id} value={subSub.id}>
-                      {subSub.name}
-                    </option>
-                  ))
-                )
-              )}
-            </select>
-          </div>
-
-          {/* Brand */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-            <label className={labelClass}>Brand</label>
-            <select {...register("brand")} className={inputClass}>
-              <option value="">Choose</option>
-              {brandData?.brands?.map((brand) => (
-                <option key={brand.id} value={brand.id}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Quantity Alert */}
-          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-            <label className={labelClass}>Quantity Alert</label>
-            <input
-              type="number"
-              {...register("quantityAlert")}
-              className={inputClass}
-            />
-          </div>
-
           {/* Attribute Selector */}
           <AttributeSelector
             register={register}
             attributeGroups={attributeGroups}
           />
 
+          {/* Images */}
+          <div className="w-full px-2 mb-6">
+            <label className={labelClass}>Images</label>
+            <input
+              type="file"
+              {...register("images")}
+              className={inputClass + " md:w-1/3 w-full"}
+              multiple
+              onChange={handleImageChange}
+            />
+            <div className="flex mt-2 gap-2">
+              {previewImages.map((src, idx) => (
+                <img
+                  key={idx}
+                  src={src}
+                  alt={`Preview ${idx}`}
+                  className="w-20 h-20 object-cover rounded"
+                />
+              ))}
+            </div>
+          </div>
+
           {/* Description */}
           <div className="w-full px-2 mb-4">
             <label className={labelClass}>Description</label>
             <textarea
               {...register("description")}
-              placeholder="Please Enter Description (Max 60 characters)"
-              maxLength={60}
+              placeholder="Please Enter Description"
               className="border border-gray-300 rounded-md p-2 w-full h-24 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
             />
           </div>
 
-          {/* Submit */}
-          <div className="w-full px-2 mt-6 flex justify-end">
+          {/* Buttons */}
+          <div className="w-full px-2 mt-6 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="bg-gray-400 text-white px-6 py-2 rounded-md hover:bg-gray-500"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
               className="bg-blue-600 !text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
-              Save Product
+              Update Product
             </button>
           </div>
         </form>
       </div>
-    </PosLayout>
+    </div>
   );
 };
 
-export default Page;
+export default EditProductModal;
