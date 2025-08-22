@@ -15,7 +15,7 @@ const Purchase = () => {
     "border border-gray-300 rounded-md p-2 h-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-400";
   const labelClass = "block mb-1 font-semibold text-gray-700";
 
-  const units = ["Pcs", "Ban", "Bag", "Taka", "Ven"]; // Unit options
+  const units = ["Pcs", "Ban", "Bag", "Taka", "Ven"];
   const statuss = ["Pending", "Delivered", "Cancelled"];
 
   const onSubmit = (data) => {
@@ -79,6 +79,18 @@ const Purchase = () => {
             ))}
           </select>
         </div>
+        {/* Status (select field) */}
+        <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+          <label className={labelClass}>Supplier</label>
+          <select {...register("status")} className={inputClass}>
+            <option value="">Select Status</option>
+            {statuss?.map((s, i) => (
+              <option key={i} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Radio Buttons */}
         <div className="flex gap-6 mb-4 w-full px-2">
@@ -109,6 +121,11 @@ const Purchase = () => {
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
               <label className={labelClass}>Purchase Amount</label>
               <input {...register("purchasePrice")} className={inputClass} />
+            </div>
+            {/* Purchase due */}
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+              <label className={labelClass}>Purchase due</label>
+              <input {...register("purchasedue")} className={inputClass} />
             </div>
             {/* Purchase Price secrect key*/}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">

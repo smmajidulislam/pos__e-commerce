@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
-const WarrantiesModal = ({ posList = [], onSubmit }) => {
+const WarrantiesModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
@@ -14,7 +14,6 @@ const WarrantiesModal = ({ posList = [], onSubmit }) => {
   } = useForm();
 
   const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
     reset();
     setIsOpen(false);
   };
@@ -65,26 +64,21 @@ const WarrantiesModal = ({ posList = [], onSubmit }) => {
                   </span>
                 )}
               </div>
-
-              {/* POS Select */}
+              {/* Category Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
+                  Warranties time in day
                 </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
+                <input
+                  {...register("WarrantiesName", {
+                    required: "Warranties name is required",
+                  })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
+                  placeholder="Enter category name"
+                />
+                {errors.categoryName && (
                   <span className="text-red-500 text-sm">
-                    {errors.posId.message}
+                    {errors.categoryName.message}
                   </span>
                 )}
               </div>

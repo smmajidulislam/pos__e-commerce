@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
 
-const AddCustomerModal = ({ posList = [], onSubmit }) => {
+const AddCustomerModal = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
@@ -15,7 +15,6 @@ const AddCustomerModal = ({ posList = [], onSubmit }) => {
   } = useForm();
 
   const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
     reset();
     setIsOpen(false);
   };
@@ -102,6 +101,24 @@ const AddCustomerModal = ({ posList = [], onSubmit }) => {
                   </span>
                 )}
               </div>
+              {/* Password Address */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Password Name
+                </label>
+                <input
+                  {...register("Password", {
+                    required: "Password is required",
+                  })}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter Password name"
+                />
+                {errors.Password && (
+                  <span className="text-red-500 text-sm">
+                    {errors.Password.message}
+                  </span>
+                )}
+              </div>
 
               {/* Submit */}
               <div className="flex justify-end mt-2">
@@ -109,7 +126,7 @@ const AddCustomerModal = ({ posList = [], onSubmit }) => {
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save <Customer></Customer>
+                  Save
                 </button>
               </div>
             </form>

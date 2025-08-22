@@ -25,7 +25,7 @@ const Variants = () => {
 
   // attributes array
   const attributes = data?.attributes || [];
-
+  console.log(attributes);
   // Filter submit
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);

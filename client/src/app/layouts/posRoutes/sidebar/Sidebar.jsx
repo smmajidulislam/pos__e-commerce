@@ -28,7 +28,6 @@ const menuItems = [
       { label: "Sub Category", link: "/subcategory" },
       { label: "Sub Sub Category", link: "/subsubcategory" },
       { label: "Brands", link: "/brands" },
-      { label: "Expense", link: "/expense" },
       { label: "Variants List", link: "/variants" },
       { label: "Variants Values", link: "/variantvalues" },
       { label: "Warranties", link: "/warranties" },

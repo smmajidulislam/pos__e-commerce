@@ -1,14 +1,13 @@
 "use client";
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
-import { Table, Space } from "antd";
+import { Table, Space, Tag } from "antd";
 import { FaPrint, FaFilePdf } from "react-icons/fa";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import {
   useDeleteAttributeValueMutation,
-  useGetAttributeValuesQuery,
+  useGetAttributesQuery,
 } from "@/app/features/api/attributeApi";
-import { MyErrorSawal, MySuccessSawal } from "@/app/utils/Sawal";
 import VariantValuesModal from "@/app/components/modal/variantvalues/VariantValuesModal";
 import EditVariantValuesModal from "@/app/components/modal/variantvalues/EditVariantValuesModal";
 
@@ -20,26 +19,16 @@ const VariantsValues = () => {
   const [editingData, setEditingData] = useState(null);
 
   // API hooks
-  const { data, isLoading } = useGetAttributeValuesQuery();
+  const { data, isLoading } = useGetAttributesQuery();
   const [deleteAttribute] = useDeleteAttributeValueMutation();
-  console.log(data);
+  console.log("API Data:", data);
 
   // attributes array
-  const attributes = data?.attributeValues || [];
+  const attributes = data?.attributes || [];
 
   // Filter submit
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
-  };
-
-  // Delete handler
-  const handleDelete = async (record) => {
-    try {
-      await deleteAttribute(record.id).unwrap();
-      MySuccessSawal(true, 2000, "Variant deleted successfully!");
-    } catch (err) {
-      MyErrorSawal(true, 2000, "Failed to delete variant!");
-    }
   };
 
   // Table columns
@@ -51,15 +40,30 @@ const VariantsValues = () => {
       width: 60,
     },
     {
-      title: "Name",
+      title: "Attribute Name",
       dataIndex: "name",
       key: "name",
       width: 200,
     },
     {
-      title: "Values Count",
+      title: "Values",
       dataIndex: "values",
       key: "values",
+      render: (values) =>
+        values?.length > 0 ? (
+          values.map((val) => (
+            <Tag key={val.id} color="blue">
+              {val.value}
+            </Tag>
+          ))
+        ) : (
+          <span className="text-gray-400 italic">No values</span>
+        ),
+    },
+    {
+      title: "Values Count",
+      dataIndex: "values",
+      key: "valuesCount",
       render: (values) => values?.length || 0,
       width: 120,
     },
@@ -73,7 +77,7 @@ const VariantsValues = () => {
           day: "2-digit",
           month: "short",
           year: "numeric",
-        }); // 👉 19 Dec 2020
+        }); // 👉 e.g. 20 Aug 2025
       },
       width: 150,
     },
@@ -89,10 +93,6 @@ const VariantsValues = () => {
               setEditingData(record);
               setIsEditModalOpen(true);
             }}
-          />
-          <DeleteOutlined
-            className="text-red-500 cursor-pointer"
-            onClick={() => handleDelete(record)}
           />
         </Space>
       ),
@@ -112,7 +112,7 @@ const VariantsValues = () => {
                   <div className="w-full sm:w-1/2 lg:w-1/3">
                     <input
                       {...register("name")}
-                      placeholder="Search by Variant"
+                      placeholder="Search by Attribute Name"
                       className="border border-gray-300 rounded-lg px-4 h-12 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
                     />
                   </div>

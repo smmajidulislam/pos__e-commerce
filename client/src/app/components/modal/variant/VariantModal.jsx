@@ -15,7 +15,8 @@ const VariantModal = () => {
   } = useForm();
 
   const handleFormSubmit = async (data) => {
-    await createAttribute(data);
+    const response = await createAttribute(data).unwrap();
+    console.log(response);
     reset();
     setIsOpen(false);
   };
@@ -73,7 +74,7 @@ const VariantModal = () => {
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save Category
+                  Save Variant
                 </button>
               </div>
             </form>
