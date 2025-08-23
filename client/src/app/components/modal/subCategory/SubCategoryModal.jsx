@@ -1,11 +1,16 @@
-// components/modal/category/CategoryModal.jsx
+// components/modal/category/SubCategoryModal.jsx
 "use client";
+import { useGetCategoriesQuery } from "@/app/features/api/categoryApi";
+import { useCreateSubCategoryMutation } from "@/app/features/api/subCategoriesApi";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
+import Swal from "sweetalert2";
 
-const SUbCategoryModal = ({ posList = [], onSubmit }) => {
+const SubCategoryModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data } = useGetCategoriesQuery();
+  const [createSubCategory] = useCreateSubCategoryMutation();
 
   const {
     register,
@@ -14,10 +19,30 @@ const SUbCategoryModal = ({ posList = [], onSubmit }) => {
     reset,
   } = useForm();
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
-    reset();
-    setIsOpen(false);
+  const handleFormSubmit = async (formData) => {
+    try {
+      const payload = {
+        name: formData.name,
+        categoryId: formData.categoryId, // selected parent category id
+      };
+
+      await createSubCategory(payload).unwrap();
+
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Sub Category created successfully",
+      });
+
+      reset();
+      setIsOpen(false);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error?.data?.message || "Something went wrong",
+      });
+    }
   };
 
   return (
@@ -48,62 +73,46 @@ const SUbCategoryModal = ({ posList = [], onSubmit }) => {
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* parent category */}
+              {/* Parent category select */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
                   Parent Category
                 </label>
-                <input
-                  {...register("ParentCategory", {
+                <select
+                  {...register("categoryId", {
                     required: "Parent category is required",
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter category name"
-                />
-                {errors.categoryName && (
+                >
+                  <option value="">-- Select Parent Category --</option>
+                  {data?.categories?.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoryId && (
                   <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
-                  </span>
-                )}
-              </div>
-              {/* Category Name */}
-              <div>
-                <label className="block mb-1 font-semibold text-gray-700">
-                  Category Name
-                </label>
-                <input
-                  {...register("categoryName", {
-                    required: "Category is required",
-                  })}
-                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter category name"
-                />
-                {errors.categoryName && (
-                  <span className="text-red-500 text-sm">
-                    {errors.categoryName.message}
+                    {errors.categoryId.message}
                   </span>
                 )}
               </div>
 
-              {/* POS Select */}
+              {/* Sub Category Name */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Select POS
+                  Sub Category Name
                 </label>
-                <select
-                  {...register("posId", { required: "Please select a POS" })}
+                <input
+                  {...register("name", {
+                    required: "Sub category name is required",
+                  })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="">Select POS</option>
-                  {posList.map((pos) => (
-                    <option key={pos.id} value={pos.id}>
-                      {pos.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.posId && (
+                  placeholder="Enter sub category name"
+                />
+                {errors.name && (
                   <span className="text-red-500 text-sm">
-                    {errors.posId.message}
+                    {errors.name.message}
                   </span>
                 )}
               </div>
@@ -114,7 +123,7 @@ const SUbCategoryModal = ({ posList = [], onSubmit }) => {
                   type="submit"
                   className="bg-blue-600 !text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
-                  Save Category
+                  Save Sub Category
                 </button>
               </div>
             </form>
@@ -125,4 +134,4 @@ const SUbCategoryModal = ({ posList = [], onSubmit }) => {
   );
 };
 
-export default SUbCategoryModal;
+export default SubCategoryModal;

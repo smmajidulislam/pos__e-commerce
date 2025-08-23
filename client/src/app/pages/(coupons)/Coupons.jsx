@@ -1,11 +1,16 @@
 "use client";
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
-import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { Table, Space, Spin } from "antd";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddCuponModal from "@/app/components/modal/(stock)/stockadjust/AddStockModal";
 import EditCuponModal from "@/app/components/modal/(stock)/stockadjust/EditStokModal";
+
+import {
+  useGetCouponsQuery,
+  useDeleteCouponMutation,
+} from "@/app/features/api/couponsApi";
 
 const Coupons = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,40 +18,35 @@ const Coupons = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
+  const [filters, setFilters] = useState({});
+  const { data: couponsData } = useGetCouponsQuery();
+  console.log(couponsData);
 
-  const prod = [
-    {
-      id: 1,
-      name: "Product 1",
-      category: "Category A",
-      price: 100,
-      sku: "SKU001",
-      itemCode: "IC001",
-    },
-    {
-      id: 2,
-      name: "Product 2",
-      category: "Category B",
-      price: 150,
-      sku: "SKU002",
-      itemCode: "IC002",
-    },
-  ];
+  // RTK Query hooks
+  const {
+    data: coupons,
+    isLoading,
+    refetch,
+  } = useGetCouponsQuery({
+    skip: (currentPage - 1) * pageSize,
+    take: pageSize,
+    ...filters,
+  });
+
+  const [deleteCoupon] = useDeleteCouponMutation();
 
   const handleSubmitFilter = (data) => {
-    console.log("Filter data:", data);
+    setFilters(data);
+    setCurrentPage(1);
   };
 
-  const handleAddCategory = (data) => {
-    console.log("Added Category:", data);
-  };
-
-  const handleEditCategory = (data) => {
-    console.log("Edited Category:", data);
-  };
-
-  const handleDelete = (record) => {
-    console.log("Deleted:", record);
+  const handleDelete = async (record) => {
+    try {
+      await deleteCoupon(record.id);
+      refetch();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const columns = [
@@ -56,14 +56,20 @@ const Coupons = () => {
       render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
       width: 60,
     },
-    { title: "Category", dataIndex: "name", key: "name", width: 200 },
-    { title: "Pos", dataIndex: "category", key: "category", width: 150 },
+    { title: "Code", dataIndex: "code", key: "code", width: 200 },
+    { title: "Discount", dataIndex: "discount", key: "discount", width: 150 },
     {
-      title: "Qty",
-      dataIndex: "price",
-      key: "price",
-      width: 100,
-      render: (price) => `$${price}`,
+      title: "Product ID",
+      dataIndex: "productId",
+      key: "productId",
+      width: 200,
+    },
+    {
+      title: "Expires At",
+      dataIndex: "expiresAt",
+      key: "expiresAt",
+      width: 180,
+      render: (date) => new Date(date).toLocaleDateString(),
     },
     {
       title: "Action",
@@ -94,38 +100,26 @@ const Coupons = () => {
         <Filtering onSubmit={handleSubmitFilter}>
           {(register) => (
             <div className="flex flex-wrap justify-center gap-4 w-full">
-              <div className="w-1/5">
+              <div className="w-1/4">
                 <input
-                  {...register("product")}
-                  placeholder="Product"
+                  {...register("code")}
+                  placeholder="Coupon Code"
                   className="border p-3 rounded w-full h-12"
                 />
               </div>
-              <div className="w-1/5">
+              <div className="w-1/4">
                 <input
-                  {...register("brand")}
-                  placeholder="Brand"
+                  {...register("minDiscount")}
+                  placeholder="Min Discount"
+                  type="number"
                   className="border p-3 rounded w-full h-12"
                 />
               </div>
-              <div className="w-1/6">
+              <div className="w-1/4">
                 <input
-                  {...register("category")}
-                  placeholder="Category"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-              <div className="w-1/6">
-                <input
-                  {...register("min-price")}
-                  placeholder="min-Price"
-                  className="border p-3 rounded w-full h-12"
-                />
-              </div>
-              <div className="w-1/6">
-                <input
-                  {...register("max-price")}
-                  placeholder="max-Price"
+                  {...register("maxDiscount")}
+                  placeholder="Max Discount"
+                  type="number"
                   className="border p-3 rounded w-full h-12"
                 />
               </div>
@@ -144,43 +138,40 @@ const Coupons = () => {
           <FaFilePdf className="mr-2" /> PDF
         </button>
 
-        {/* Add Category Modal */}
-        <AddCuponModal
-          isOpen={isAddModalOpen}
-          setIsOpen={setIsAddModalOpen}
-          onSubmit={handleAddCategory}
-          posList={[{ id: 1, name: "POS 1" }]}
-        />
+        {/* Add Coupon Modal */}
+        <AddCuponModal isOpen={isAddModalOpen} setIsOpen={setIsAddModalOpen} />
       </div>
 
-      {/* Edit Category Modal */}
+      {/* Edit Coupon Modal */}
       <EditCuponModal
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
         initialData={editingData}
-        onSubmit={handleEditCategory}
-        posList={[
-          { id: 1, name: "POS 1" },
-          { id: 2, name: "POS 2" },
-        ]}
       />
 
       {/* Table */}
       <div className="mt-2 overflow-x-auto">
-        <Table
-          columns={columns}
-          dataSource={prod}
-          rowKey="id"
-          pagination={{
-            current: currentPage,
-            pageSize: pageSize,
-            onChange: (page, pageSize) => {
-              setCurrentPage(page);
-              setPageSize(pageSize);
-            },
-          }}
-          scroll={{ x: "max-content" }}
-        />
+        {isLoading ? (
+          <div className="flex justify-center py-10">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={coupons?.data || []}
+            rowKey="id"
+            pagination={{
+              current: currentPage,
+              pageSize: pageSize,
+              total: coupons?.total || 0,
+              onChange: (page, pageSize) => {
+                setCurrentPage(page);
+                setPageSize(pageSize);
+              },
+            }}
+            scroll={{ x: "max-content" }}
+          />
+        )}
       </div>
     </>
   );

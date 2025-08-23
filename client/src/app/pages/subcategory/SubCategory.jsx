@@ -2,10 +2,15 @@
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import sawal from "sweetalert2";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import AddCategoryModal from "@/app/components/modal/subCategory/SubCategoryModal";
 import EditCategoryModal from "@/app/components/modal/subCategory/SubEditCategoryModal";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  useGetSubCategoriesQuery,
+  useDeleteSubCategoryMutation,
+} from "@/app/features/api/subCategoriesApi";
 
 const SubCategory = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,39 +19,26 @@ const SubCategory = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
-  const prod = [
-    {
-      id: 1,
-      name: "Product 1",
-      category: "Category A",
-      price: 100,
-      sku: "SKU001",
-      itemCode: "IC001",
-    },
-    {
-      id: 2,
-      name: "Product 2",
-      category: "Category B",
-      price: 150,
-      sku: "SKU002",
-      itemCode: "IC002",
-    },
-  ];
+  const [deleteSubCategory] = useDeleteSubCategoryMutation();
+
+  const { data } = useGetSubCategoriesQuery();
+  const subCategories = data?.subCategories || [];
 
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
   };
 
-  const handleAddCategory = (data) => {
-    console.log("Added Category:", data);
-  };
-
-  const handleEditCategory = (data) => {
-    console.log("Edited Category:", data);
-  };
-
-  const handleDelete = (record) => {
-    console.log("Deleted:", record);
+  const handleDelete = async (record) => {
+    try {
+      await deleteSubCategory(record.id);
+      sawal.fire("Deleted!", "Sub Category has been deleted.", "success");
+    } catch (error) {
+      sawal.fire(
+        "Error",
+        error?.data?.message || "Failed to delete Sub Category",
+        "error"
+      );
+    }
   };
 
   const columns = [
@@ -56,14 +48,33 @@ const SubCategory = () => {
       render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
       width: 60,
     },
-    { title: "Category", dataIndex: "name", key: "name", width: 200 },
-    { title: "Pos", dataIndex: "category", key: "category", width: 150 },
     {
-      title: "Qty",
-      dataIndex: "price",
-      key: "price",
-      width: 100,
-      render: (price) => `$${price}`,
+      title: "Sub Category",
+      dataIndex: "name",
+      key: "name",
+      width: 200,
+    },
+    {
+      title: "Parent Category",
+      dataIndex: "category",
+      key: "category",
+      width: 200,
+      render: (category) => category?.name || "-",
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+      render: (date) => {
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, "0");
+        const month = d
+          .toLocaleString("en-US", { month: "short" })
+          .toUpperCase();
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+      },
     },
     {
       title: "Action",
@@ -122,32 +133,24 @@ const SubCategory = () => {
               <AddCategoryModal
                 isOpen={isAddModalOpen}
                 setIsOpen={setIsAddModalOpen}
-                onSubmit={handleAddCategory}
-                posList={[{ id: 1, name: "POS 1" }]}
               />
             </div>
           </div>
         </div>
       </div>
-      {/* Add Category Modal */}
 
       {/* Edit Category Modal */}
       <EditCategoryModal
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
         initialData={editingData}
-        onSubmit={handleEditCategory}
-        posList={[
-          { id: 1, name: "POS 1" },
-          { id: 2, name: "POS 2" },
-        ]}
       />
 
       {/* Table */}
       <div className="mt-2 overflow-x-auto">
         <Table
           columns={columns}
-          dataSource={prod}
+          dataSource={subCategories}
           rowKey="id"
           pagination={{
             current: currentPage,

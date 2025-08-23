@@ -6,9 +6,8 @@ import { FaTimes } from "react-icons/fa";
 const EditStokModal = ({
   isOpen,
   setIsOpen,
-  onSubmit,
+
   initialData,
-  posList = [],
 }) => {
   const {
     register,
@@ -26,7 +25,6 @@ const EditStokModal = ({
   }, [initialData, reset]);
 
   const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
     setIsOpen(false);
   };
 
