@@ -2,10 +2,15 @@
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf, FaPlus } from "react-icons/fa";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import SUbsubCategoryModal from "@/app/components/modal/subsubCategory/SubsubCategoryModal";
+import SubsubCategoryModal from "@/app/components/modal/subsubCategory/SubsubCategoryModal";
 import SubsubEditCategoryModal from "@/app/components/modal/subsubCategory/SubsubEditCategoryModal";
+import {
+  useGetSubSubCategoriesQuery,
+  useDeleteSubSubCategoryMutation,
+} from "@/app/features/api/subsubCategoriesApi";
+import Swal from "sweetalert2";
 
 const SubsubCategory = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,39 +19,43 @@ const SubsubCategory = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
-  const prod = [
-    {
-      id: 1,
-      name: "Product 1",
-      category: "Category A",
-      price: 100,
-      sku: "SKU001",
-      itemCode: "IC001",
-    },
-    {
-      id: 2,
-      name: "Product 2",
-      category: "Category B",
-      price: 150,
-      sku: "SKU002",
-      itemCode: "IC002",
-    },
-  ];
+  const { data } = useGetSubSubCategoriesQuery();
+  const subSubCategories = data?.subSubCategories || [];
+
+  const [deleteSubSubCategory] = useDeleteSubSubCategoryMutation();
 
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
   };
 
-  const handleAddCategory = (data) => {
-    console.log("Added Category:", data);
-  };
-
-  const handleEditCategory = (data) => {
-    console.log("Edited Category:", data);
-  };
-
-  const handleDelete = (record) => {
-    console.log("Deleted:", record);
+  // DELETE handler
+  const handleDelete = async (record) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: `Delete "${record.name}" permanently?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteSubSubCategory(record.id).unwrap();
+          Swal.fire(
+            "Deleted!",
+            "Sub Sub Category has been deleted.",
+            "success"
+          );
+        } catch (error) {
+          Swal.fire(
+            "Error",
+            error?.data?.message || "Failed to delete Sub Sub Category",
+            "error"
+          );
+        }
+      }
+    });
   };
 
   const columns = [
@@ -56,14 +65,27 @@ const SubsubCategory = () => {
       render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
       width: 60,
     },
-    { title: "Category", dataIndex: "name", key: "name", width: 200 },
-    { title: "Pos", dataIndex: "category", key: "category", width: 150 },
+    { title: "Sub Sub Category", dataIndex: "name", key: "name", width: 200 },
     {
-      title: "Qty",
-      dataIndex: "price",
-      key: "price",
-      width: 100,
-      render: (price) => `$${price}`,
+      title: "Sub Category",
+      dataIndex: ["subCategory", "name"],
+      key: "subCategory",
+      width: 200,
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 180,
+      render: (date) => {
+        if (!date) return "";
+        const d = new Date(date);
+        return d.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      },
     },
     {
       title: "Action",
@@ -89,6 +111,7 @@ const SubsubCategory = () => {
 
   return (
     <>
+      {/* Filter + Actions */}
       <div className="bg-white shadow-md rounded-xl p-4 mb-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Filtering */}
@@ -98,7 +121,7 @@ const SubsubCategory = () => {
                 <div className="flex flex-wrap gap-4">
                   <div className="w-full sm:w-1/2 lg:w-1/3">
                     <input
-                      {...register("category")}
+                      {...register("search")}
                       placeholder="Search by Sub Sub Category"
                       className="border border-gray-300 rounded-lg px-4 h-12 w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
                     />
@@ -119,36 +142,27 @@ const SubsubCategory = () => {
             </button>
 
             <div className="flex-1 min-w-[120px]">
-              <SUbsubCategoryModal
+              <SubsubCategoryModal
                 isOpen={isAddModalOpen}
                 setIsOpen={setIsAddModalOpen}
-                onSubmit={handleAddCategory}
-                posList={[{ id: 1, name: "POS 1" }]}
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Add Category Modal */}
-
       {/* Edit Category Modal */}
       <SubsubEditCategoryModal
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
         initialData={editingData}
-        onSubmit={handleEditCategory}
-        posList={[
-          { id: 1, name: "POS 1" },
-          { id: 2, name: "POS 2" },
-        ]}
       />
 
       {/* Table */}
       <div className="mt-2 overflow-x-auto">
         <Table
           columns={columns}
-          dataSource={prod}
+          dataSource={subSubCategories}
           rowKey="id"
           pagination={{
             current: currentPage,

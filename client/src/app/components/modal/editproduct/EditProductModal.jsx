@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useGetStoresQuery } from "@/app/features/api/storeApi";
 import { useGetWarehousesQuery } from "@/app/features/api/warehouseApi";
 import { useGetCategoriesQuery } from "@/app/features/api/categoryApi";
 import { useGetBrandsQuery } from "@/app/features/api/brandApi";
 import { useGetAttributesQuery } from "@/app/features/api/attributeApi";
 import { useUpdateProductMutation } from "@/app/features/api/productApi";
-import AttributeSelector from "@/app/components/product/AttributeSelector";
+import { useAddProductImagesMutation } from "@/app/features/api/productImageApi";
 
 const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
   const { data: storeData } = useGetStoresQuery();
@@ -16,17 +17,15 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
   const { data: categoryData } = useGetCategoriesQuery();
   const { data: brandData } = useGetBrandsQuery();
   const { data: attributeValuesData } = useGetAttributesQuery();
+  const [addProductImages] = useAddProductImagesMutation();
 
   const [updateProduct] = useUpdateProductMutation();
   const [previewImages, setPreviewImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
-
-  const attributeGroups = {};
-  if (attributeValuesData?.attributes) {
-    attributeValuesData.attributes.forEach((attrGroup) => {
-      attributeGroups[attrGroup.name] = attrGroup.values || [];
-    });
-  }
+  const [selectedAttributes, setSelectedAttributes] = useState(
+    productData?.attributes?.map((attr) => attr.id) || []
+  );
+  const [isAttrDropdownOpen, setIsAttrDropdownOpen] = useState(false);
 
   const {
     register,
@@ -44,57 +43,91 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
       subCategory: productData?.subCategoryId || "",
       subSubCategory: productData?.subSubCategoryId || "",
       brand: productData?.brandId || "",
-      quantityAlert: productData?.quantityAlert || "",
-      attributes: productData?.attributeValueIds || [],
+      quantityAlert: productData?.quantityAlert || 0,
+      attributes: productData?.attributes?.map((a) => a.id) || [],
       price: productData?.price || "",
       description: productData?.description || "",
     },
   });
 
   useEffect(() => {
-    if (productData?.images) {
-      setPreviewImages(productData.images); // assume URL array
-    }
+    if (productData?.images) setPreviewImages(productData.images);
   }, [productData]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
     setImageFiles(files);
+
+    // FormData create
+    const formData = new FormData();
+    files.forEach((file) => formData.append("images", file));
+
+    // Preview create
     const previewUrls = files.map((file) => URL.createObjectURL(file));
     setPreviewImages(previewUrls);
+
+    try {
+      // API call using your updateProduct mutation
+      const res = await addProductImages({
+        id: productData.id,
+        formData, // backend should accept FormData
+      }).unwrap();
+      console.log(res);
+
+      Swal.fire({
+        icon: "success",
+        title: "Uploaded",
+        text: "Images uploaded successfully!",
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to upload images!",
+      });
+    }
+  };
+
+  const handleAttributeChange = (attrId) => {
+    const updated = selectedAttributes.includes(attrId)
+      ? selectedAttributes.filter((id) => id !== attrId)
+      : [...selectedAttributes, attrId];
+    setSelectedAttributes(updated);
+    setValue("attributes", updated);
   };
 
   const onSubmit = async (data) => {
     try {
-      const updatedData = {
-        ...(data.productName && { name: data.productName }),
-        ...(data.description && { description: data.description }),
-        ...(data.sku && { sku: data.sku }),
-        ...(data.slug && { slug: data.slug }),
-        ...(data.store && { storeId: data.store }),
-        ...(data.warehouse && { warehouseId: data.warehouse }),
-        ...(data.category && { categoryId: data.category }),
-        ...(data.subCategory && { subCategoryId: data.subCategory }),
-        ...(data.subSubCategory && { subSubCategoryId: data.subSubCategory }),
-        ...(data.brand && { brandId: data.brand }),
-        ...(data.attributes?.length > 0 && {
-          attributeValueIds: data.attributes,
-        }),
-        ...(data.price ? { price: Number(data.price) } : {}),
-        ...(data.quantityAlert
-          ? { quantityAlert: Number(data.quantityAlert) }
-          : {}),
-        // images handling will depend on backend
-      };
+      const formData = new FormData();
+      formData.append("name", data.productName);
+      formData.append("sku", data.sku);
+      formData.append("slug", data.slug);
+      formData.append("storeId", data.store);
+      formData.append("warehouseId", data.warehouse);
+      formData.append("categoryId", data.category);
+      if (data.subCategory) formData.append("subCategoryId", data.subCategory);
+      if (data.subSubCategory)
+        formData.append("subSubCategoryId", data.subSubCategory);
+      formData.append("brandId", data.brand);
+      formData.append("quantityAlert", data.quantityAlert);
+      formData.append("description", data.description);
+      if (selectedAttributes.length > 0)
+        selectedAttributes.forEach((id) =>
+          formData.append("attributeValueIds[]", id)
+        );
+      if (data.price) formData.append("price", Number(data.price));
 
-      await updateProduct({ id: productData.id, ...updatedData }).unwrap();
+      // Append images
+      imageFiles.forEach((file) => formData.append("images", file));
+
+      await updateProduct({ id: productData.id, body: formData }).unwrap();
 
       Swal.fire({
         icon: "success",
         title: "Updated",
         text: "Product updated successfully!",
       });
-
       setIsOpen(false);
     } catch (err) {
       console.error(err);
@@ -195,11 +228,97 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             </select>
           </div>
 
-          {/* Attribute Selector */}
-          <AttributeSelector
-            register={register}
-            attributeGroups={attributeGroups}
-          />
+          {/* Sub Category */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Sub Category</label>
+            <input
+              {...register("subCategory")}
+              placeholder="Enter Sub Category"
+              className={inputClass}
+            />
+          </div>
+
+          {/* Sub Sub Category */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Sub Sub Category</label>
+            <input
+              {...register("subSubCategory")}
+              placeholder="Enter Sub Sub Category"
+              className={inputClass}
+            />
+          </div>
+
+          {/* Quantity Alert */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Quantity Alert</label>
+            <input
+              type="number"
+              {...register("quantityAlert")}
+              className={inputClass}
+            />
+          </div>
+
+          {/* Brand */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Brand</label>
+            <select {...register("brand")} className={inputClass}>
+              <option value="">Choose</option>
+              {brandData?.brands?.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Attributes Dropdown */}
+          <div className="w-full px-2 mb-4 relative">
+            <label className={labelClass}>Attributes</label>
+            <div
+              className={`${inputClass} cursor-pointer flex justify-between items-center`}
+              onClick={() => setIsAttrDropdownOpen((prev) => !prev)}
+            >
+              <span>
+                {selectedAttributes.length > 0
+                  ? attributeValuesData?.attributes
+                      ?.flatMap((g) => g.values)
+                      .filter((v) => selectedAttributes.includes(v.id))
+                      .map((v) => v.value)
+                      .join(", ")
+                  : "Select Attributes"}
+              </span>
+              {isAttrDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </div>
+
+            {isAttrDropdownOpen && (
+              <div className="absolute z-50 bg-white border border-gray-300 rounded-md mt-1 w-full max-h-60 overflow-auto p-2 shadow-md">
+                {attributeValuesData?.attributes?.map((attrGroup) => (
+                  <div key={attrGroup.id} className="mb-2">
+                    <p className="font-semibold text-gray-600">
+                      {attrGroup.name}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {attrGroup.values?.map((val) => (
+                        <label
+                          key={val.id}
+                          className="flex items-center gap-1 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            value={val.id}
+                            checked={selectedAttributes.includes(val.id)}
+                            onChange={() => handleAttributeChange(val.id)}
+                            className="h-4 w-4"
+                          />
+                          <span>{val.value}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Images */}
           <div className="w-full px-2 mb-6">
@@ -207,11 +326,11 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             <input
               type="file"
               {...register("images")}
-              className={inputClass + " md:w-1/3 w-full"}
               multiple
               onChange={handleImageChange}
+              className={inputClass}
             />
-            <div className="flex mt-2 gap-2">
+            <div className="flex mt-2 gap-2 flex-wrap">
               {previewImages.map((src, idx) => (
                 <img
                   key={idx}
@@ -228,7 +347,7 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             <label className={labelClass}>Description</label>
             <textarea
               {...register("description")}
-              placeholder="Please Enter Description"
+              placeholder="Enter description"
               className="border border-gray-300 rounded-md p-2 w-full h-24 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
             />
           </div>
@@ -244,7 +363,7 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             </button>
             <button
               type="submit"
-              className="bg-blue-600 !text-white px-6 py-2 rounded-md hover:bg-blue-700"
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
               Update Product
             </button>

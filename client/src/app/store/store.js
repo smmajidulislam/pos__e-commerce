@@ -9,6 +9,9 @@ import { brandApi } from "../features/api/brandApi";
 import { attributeApi } from "../features/api/attributeApi";
 import { storeApi } from "../features/api/storeApi";
 import { warehouseApi } from "../features/api/warehouseApi";
+import { couponsApi } from "../features/api/couponsApi";
+import { subCategoryApi } from "../features/api/subCategoriesApi";
+import { subSubCategoryApi } from "../features/api/subsubCategoriesApi";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +24,9 @@ export const store = configureStore({
     [attributeApi.reducerPath]: attributeApi.reducer,
     [storeApi.reducerPath]: storeApi.reducer,
     [warehouseApi.reducerPath]: warehouseApi.reducer,
+    [couponsApi.reducerPath]: couponsApi.reducer,
+    [subCategoryApi.reducerPath]: subCategoryApi.reducer,
+    [subSubCategoryApi.reducerPath]: subSubCategoryApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -32,5 +38,8 @@ export const store = configureStore({
       attributeApi.middleware,
       storeApi.middleware,
       warehouseApi.middleware,
+      couponsApi.middleware,
+      subCategoryApi.middleware,
+      subSubCategoryApi.middleware,
     ]),
 });

@@ -1,11 +1,15 @@
-// components/modal/category/CategoryModal.jsx
 "use client";
+import { useGetProductsQuery } from "@/app/features/api/productApi";
+import { useCreateCouponMutation } from "@/app/features/api/couponsApi";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaPlus, FaTimes } from "react-icons/fa";
+import Swal from "sweetalert2";
 
-const AddStockModal = ({ posList = [], onSubmit }) => {
+const AddCouponModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: products } = useGetProductsQuery();
+  const [createCoupon] = useCreateCouponMutation();
 
   const {
     register,
@@ -14,10 +18,41 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
     reset,
   } = useForm();
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
-    reset();
-    setIsOpen(false);
+  const handleFormSubmit = async (data) => {
+    try {
+      // const payload = {
+      //   code: data.code,
+      //   discount: Number(data.discount),
+      //   productId: data.productId,
+      // };
+      const d = {
+        code: "WELCOME501",
+        discount: 50,
+        discountType: "FIXED",
+        expiresAt: "2025-12-31T00:00:00.000Z",
+        isActive: true,
+        minimumPurchaseAmount: 500,
+        productIds: [data.productId],
+        // assignedById: "cmelgnnf30000ce7ixh3ru119",
+      };
+
+      // if (data.expiresAt) {
+      //   payload.expiresAt = new Date(data.expiresAt).toISOString();
+      // }
+      // console.log(payload);
+      const res = await createCoupon(d);
+
+      console.log(res);
+      Swal.fire("Success", "Coupon created successfully", "success");
+      reset();
+      setIsOpen(false);
+    } catch (err) {
+      Swal.fire(
+        "Error",
+        err?.data?.message || "Failed to create coupon",
+        "error"
+      );
+    }
   };
 
   return (
@@ -27,7 +62,7 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
         onClick={() => setIsOpen(true)}
         className="flex items-center px-4 py-2 bg-green-500 !text-white rounded hover:bg-green-600"
       >
-        <FaPlus className="mr-2" /> Add New
+        <FaPlus className="mr-2" /> Add Coupon
       </button>
 
       {/* Modal */}
@@ -42,71 +77,83 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
               <FaTimes />
             </button>
 
-            <h2 className="text-xl font-bold mb-4">Add New Brand</h2>
+            <h2 className="text-xl font-bold mb-4">Add New Coupon</h2>
 
             <form
               onSubmit={handleSubmit(handleFormSubmit)}
               className="space-y-4"
             >
-              {/* Purchase Ref */}
+              {/* Coupon Code */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Purchase Reference
+                  Coupon Code
                 </label>
                 <input
-                  {...register("purchaseRef", {
-                    required: "Purchase reference is required",
-                  })}
+                  {...register("code", { required: "Code is required" })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter purchase reference"
+                  placeholder="Enter coupon code"
                 />
-                {errors.purchaseRef && (
+                {errors.code && (
                   <span className="text-red-500 text-sm">
-                    {errors.purchaseRef.message}
+                    {errors.code.message}
                   </span>
                 )}
               </div>
 
-              {/* Buying Quantity */}
+              {/* Discount */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Buying Quantity
+                  Discount (%)
                 </label>
                 <input
                   type="number"
-                  {...register("buyingQty", {
-                    required: "Buying quantity is required",
-                    min: { value: 1, message: "Quantity must be at least 1" },
+                  {...register("discount", {
+                    required: "Discount is required",
+                    min: { value: 0, message: "Minimum is 0" },
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter buying quantity"
+                  placeholder="Enter discount"
                 />
-                {errors.buyingQty && (
+                {errors.discount && (
                   <span className="text-red-500 text-sm">
-                    {errors.buyingQty.message}
+                    {errors.discount.message}
                   </span>
                 )}
               </div>
 
-              {/* Received Quantity */}
+              {/* Select Product */}
               <div>
                 <label className="block mb-1 font-semibold text-gray-700">
-                  Received Quantity
+                  Select Product
                 </label>
-                <input
-                  type="number"
-                  {...register("receivedQty", {
-                    required: "Received quantity is required",
-                    min: { value: 0, message: "Quantity cannot be negative" },
-                  })}
+                <select
+                  {...register("productId", { required: "Select a product" })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Enter received quantity"
-                />
-                {errors.receivedQty && (
+                >
+                  <option value="">-- Select Product --</option>
+                  {products?.products?.map((prod) => (
+                    <option key={prod.id} value={prod.id}>
+                      {prod.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.productId && (
                   <span className="text-red-500 text-sm">
-                    {errors.receivedQty.message}
+                    {errors.productId.message}
                   </span>
                 )}
+              </div>
+
+              {/* Expiry Date */}
+              <div>
+                <label className="block mb-1 font-semibold text-gray-700">
+                  Expiry Date
+                </label>
+                <input
+                  type="date"
+                  {...register("expiresAt")}
+                  className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
               </div>
 
               {/* Submit */}
@@ -126,4 +173,4 @@ const AddStockModal = ({ posList = [], onSubmit }) => {
   );
 };
 
-export default AddStockModal;
+export default AddCouponModal;

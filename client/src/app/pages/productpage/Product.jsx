@@ -22,7 +22,7 @@ const Products = () => {
     refetch,
   } = useGetProductsQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-
+  console.log(productsData);
   // Modal states
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -204,7 +204,7 @@ const Products = () => {
           />
         )}
       </div>
-      // {/* Edit Product Modal */}
+      {/* Edit Product Modal */}
       {isEditOpen && selectedProduct && (
         <EditProductModal
           isOpen={isEditOpen}
