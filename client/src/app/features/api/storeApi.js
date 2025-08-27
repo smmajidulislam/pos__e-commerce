@@ -5,6 +5,7 @@ export const storeApi = createApi({
   reducerPath: "storeApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
+    credentials: "include",
   }),
   tagTypes: ["Stores"],
   endpoints: (builder) => ({

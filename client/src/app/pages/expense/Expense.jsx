@@ -6,6 +6,11 @@ import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddExpense from "@/app/components/modal/expense/AddExpense";
 import EditExpense from "@/app/components/modal/expense/EditExpense";
+import {
+  useGetExpensesQuery,
+  useDeleteExpenseMutation,
+} from "@/app/features/api/expenseApi";
+import Swal from "sweetalert2";
 
 const Expense = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,39 +19,29 @@ const Expense = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingData, setEditingData] = useState(null);
 
-  const expenses = [
-    {
-      id: 1,
-      name: "Office Rent",
-      category: "Rent",
-      amount: 500,
-      date: "2025-08-01",
-    },
-    {
-      id: 2,
-      name: "Stationery",
-      category: "Office Supplies",
-      amount: 150,
-      date: "2025-08-05",
-    },
-  ];
+  // API Hooks
+  const { data: expensesData, isLoading } = useGetExpensesQuery();
+  const [deleteExpense] = useDeleteExpenseMutation();
 
+  // Expenses from API
+  const expenses = expensesData?.expenses || [];
+
+  // Filter submit
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
   };
 
-  const handleAddExpense = (data) => {
-    console.log("Added Expense:", data);
+  // Delete expense
+  const handleDelete = async (record) => {
+    try {
+      const res = await deleteExpense(record.id).unwrap();
+      Swal.fire("Deleted!", "Expense has been deleted.", "success");
+    } catch (err) {
+      Swal.fire("Error", "Failed to delete expense", "error");
+    }
   };
 
-  const handleEditExpense = (data) => {
-    console.log("Edited Expense:", data);
-  };
-
-  const handleDelete = (record) => {
-    console.log("Deleted:", record);
-  };
-
+  // Table Columns
   const columns = [
     {
       title: "SL",
@@ -55,15 +50,13 @@ const Expense = () => {
       width: 60,
     },
     { title: "Expense Name", dataIndex: "name", key: "name", width: 200 },
-    { title: "Category", dataIndex: "category", key: "category", width: 150 },
     {
-      title: "Amount",
-      dataIndex: "amount",
-      key: "amount",
-      width: 120,
-      render: (amount) => `$${amount}`,
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 200,
+      render: (date) => new Date(date).toLocaleDateString(), // nice format
     },
-    { title: "Date", dataIndex: "date", key: "date", width: 120 },
     {
       title: "Action",
       key: "action",
@@ -109,11 +102,11 @@ const Expense = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3">
-            <button className="flex-1 sm:flex-none w-full sm:w-auto min-w-[120px] flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition">
+            <button className="flex-1 sm:flex-none w-full sm:w-auto min-w-[120px] flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 !text-white rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition">
               <FaPrint /> Print
             </button>
 
-            <button className="flex-1 sm:flex-none w-full sm:w-auto min-w-[120px] flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg shadow hover:from-red-600 hover:to-red-700 transition">
+            <button className="flex-1 sm:flex-none w-full sm:w-auto min-w-[120px] flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 !text-white rounded-lg shadow hover:from-red-600 hover:to-red-700 transition">
               <FaFilePdf /> PDF
             </button>
 
@@ -121,7 +114,6 @@ const Expense = () => {
               <AddExpense
                 isOpen={isAddModalOpen}
                 setIsOpen={setIsAddModalOpen}
-                onSubmit={handleAddExpense}
               />
             </div>
           </div>
@@ -133,7 +125,6 @@ const Expense = () => {
         isOpen={isEditModalOpen}
         setIsOpen={setIsEditModalOpen}
         initialData={editingData}
-        onSubmit={handleEditExpense}
       />
 
       {/* Table */}
@@ -141,6 +132,7 @@ const Expense = () => {
         <Table
           columns={columns}
           dataSource={expenses}
+          loading={isLoading}
           rowKey="id"
           pagination={{
             current: currentPage,

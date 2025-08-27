@@ -5,6 +5,7 @@ export const attributeApi = createApi({
   reducerPath: "attributeApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
+    credentials: "include",
   }),
   tagTypes: ["Attributes"],
   endpoints: (builder) => ({

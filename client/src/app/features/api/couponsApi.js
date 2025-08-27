@@ -5,6 +5,7 @@ export const couponsApi = createApi({
   reducerPath: "couponsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
+    credentials: "include",
   }),
   tagTypes: ["Coupons"],
   endpoints: (builder) => ({

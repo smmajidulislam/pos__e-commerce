@@ -5,6 +5,7 @@ export const brandApi = createApi({
   reducerPath: "brandApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
+    credentials: "include",
   }),
   tagTypes: ["Brands"],
   endpoints: (builder) => ({
