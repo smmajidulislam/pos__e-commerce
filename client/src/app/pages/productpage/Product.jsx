@@ -2,14 +2,13 @@
 import React, { useState } from "react";
 import Filtering from "@/app/components/filter/Filtering";
 import { Table, Space, Skeleton } from "antd";
-import { FaPrint, FaFilePdf, FaExchangeAlt } from "react-icons/fa";
+import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
 } from "@/app/features/api/productApi";
 import EditProductModal from "@/app/components/modal/editproduct/EditProductModal";
-import ConvertNameModal from "@/app/components/converter/Converter";
 
 const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,9 +26,6 @@ const Products = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const [isConvertOpen, setIsConvertOpen] = useState(false);
-  const [convertProduct, setConvertProduct] = useState(null);
-
   const handleSubmit = (data) => {
     console.log("Filtering submitted:", data);
   };
@@ -46,11 +42,6 @@ const Products = () => {
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const onConvert = (record) => {
-    setConvertProduct(record);
-    setIsConvertOpen(true);
   };
 
   const columns = [
@@ -90,17 +81,7 @@ const Products = () => {
       key: "sku",
       width: 120,
     },
-    {
-      title: "Convert Name",
-      key: "convert",
-      width: 120,
-      render: (_, record) => (
-        <FaExchangeAlt
-          className="text-green-600 cursor-pointer text-lg"
-          onClick={() => onConvert(record)}
-        />
-      ),
-    },
+
     {
       title: "Action",
       key: "action",
@@ -210,14 +191,6 @@ const Products = () => {
           isOpen={isEditOpen}
           setIsOpen={setIsEditOpen}
           productData={selectedProduct}
-        />
-      )}
-      {/* Convert Name Modal */}
-      {isConvertOpen && convertProduct && (
-        <ConvertNameModal
-          isOpen={isConvertOpen}
-          setIsOpen={setIsConvertOpen}
-          productData={convertProduct}
         />
       )}
     </div>

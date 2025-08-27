@@ -54,40 +54,38 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
     if (productData?.images) setPreviewImages(productData.images);
   }, [productData]);
 
-  const handleImageChange = async (e) => {
-    const files = Array.from(e.target.files);
-    setImageFiles(files);
+  // const handleImageChange = async (e) => {
+  //   const files = Array.from(e.target.files);
+  //   console.log(files);
+  //   setImageFiles(files);
 
-    // FormData create
-    const formData = new FormData();
-    files.forEach((file) => formData.append("images", file));
+  //   const formData = new FormData();
+  //   files.forEach((file) => formData.append("images", file));
 
-    // Preview create
-    const previewUrls = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages(previewUrls);
+  //   const previewUrls = files.map((file) => URL.createObjectURL(file));
+  //   setPreviewImages(previewUrls);
 
-    try {
-      // API call using your updateProduct mutation
-      const res = await addProductImages({
-        id: productData.id,
-        formData, // backend should accept FormData
-      }).unwrap();
-      console.log(res);
+  //   try {
+  //     const res = await addProductImages({
+  //       id: productData.id,
+  //       formData,
+  //     }).unwrap();
+  //     console.log(res);
 
-      Swal.fire({
-        icon: "success",
-        title: "Uploaded",
-        text: "Images uploaded successfully!",
-      });
-    } catch (err) {
-      console.error(err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to upload images!",
-      });
-    }
-  };
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Uploaded",
+  //       text: "Images uploaded successfully!",
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text: "Failed to upload images!",
+  //     });
+  //   }
+  // };
 
   const handleAttributeChange = (attrId) => {
     const updated = selectedAttributes.includes(attrId)
@@ -151,6 +149,7 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
         <h2 className="text-xl font-bold mb-4">Edit Product</h2>
         <form
           onSubmit={handleSubmit(onSubmit)}
+          encType="multipart/form-data"
           className="flex flex-wrap -mx-2"
         >
           {/* Store */}
@@ -325,9 +324,11 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             <label className={labelClass}>Images</label>
             <input
               type="file"
+              accept="image/*"
+              name="images"
               {...register("images")}
               multiple
-              onChange={handleImageChange}
+              // onChange={handleImageChange}
               className={inputClass}
             />
             <div className="flex mt-2 gap-2 flex-wrap">

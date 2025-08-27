@@ -1,25 +1,119 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useGetStoresQuery } from "@/app/features/api/storeApi";
+import { useGetWarehousesQuery } from "@/app/features/api/warehouseApi";
+import { useGetSuppliersQuery } from "@/app/features/api/supplierApi";
+import { useGetProductsQuery } from "@/app/features/api/productApi";
+import { useGetAttributeValuesQuery } from "@/app/features/api/attributeApi";
+import { useGetExpensesQuery } from "@/app/features/api/expenseApi";
+import { useCreatePurchaseMutation } from "@/app/features/api/purchasesApi";
+import { useGetWarrantiesQuery } from "@/app/features/api/warrantiesApi";
+import sawal from "sweetalert2";
 
 const Purchase = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, watch, reset } = useForm();
 
-  const [paymentType, setPaymentType] = useState("payment"); // default payment
+  // API Queries
+  const { data: stores, isLoading: storesLoading } = useGetStoresQuery();
+  const { data: warehouses, isLoading: warehousesLoading } =
+    useGetWarehousesQuery();
+  const { data: suppliers, isLoading: suppliersLoading } =
+    useGetSuppliersQuery();
+  const { data: products, isLoading: productsLoading } = useGetProductsQuery();
+  const { data: attributeValues, isLoading: attributeValuesLoading } =
+    useGetAttributeValuesQuery();
+  const { data: expenses, isLoading: expensesLoading } = useGetExpensesQuery();
+  const { data: warranties, isLoading: warrantiesLoading } =
+    useGetWarrantiesQuery();
+
+  // API Mutations
+  const [createPurchase, { isLoading }] = useCreatePurchaseMutation();
+
+  // States
+  const [paymentType, setPaymentType] = useState("payment");
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [purchaseDue, setPurchaseDue] = useState(0);
+  const [purchaseKey, setPurchaseKey] = useState("");
+  const [selectedWarrantyDays, setSelectedWarrantyDays] = useState(0); // New state for warranty days
 
   const inputClass =
     "border border-gray-300 rounded-md p-2 h-10 w-full focus:outline-none focus:ring-2 focus:ring-blue-400";
   const labelClass = "block mb-1 font-semibold text-gray-700";
 
-  const units = ["Pcs", "Ban", "Bag", "Taka", "Ven"];
-  const statuss = ["Pending", "Delivered", "Cancelled"];
+  const statuss = ["PENDING", "DELIVERED", "CANCELLED"];
 
-  const onSubmit = (data) => {
-    console.log("Product Data:", data);
+  // Watching Form values
+  const purchasePrice = watch("purchasePrice") || 0;
+  const purchaseQuantity = watch("purchaseQuantity") || 0;
+  const commission = watch("commission") || 0;
+  const paymentQuantity = watch("paymentQuantity") || 0;
+
+  // Helper: number to key
+  const numberToKey = (num) => {
+    const alphabet = "abcdefghij"; // 0-9
+    return String(num)
+      .split("")
+      .map((digit) => alphabet[parseInt(digit, 10)])
+      .join("");
+  };
+
+  // Auto calculation
+  useEffect(() => {
+    const calcTotal =
+      Number(purchasePrice) * Number(purchaseQuantity) - Number(commission);
+    const validTotal = calcTotal > 0 ? calcTotal : 0;
+    setTotalPrice(validTotal);
+
+    const calcDue = validTotal - Number(paymentQuantity);
+    setPurchaseDue(calcDue > 0 ? calcDue : 0);
+
+    // generate key from total price
+    setPurchaseKey(numberToKey(validTotal));
+  }, [purchasePrice, purchaseQuantity, commission, paymentQuantity]);
+
+  const onSubmit = async (data) => {
+    const payload = {
+      storeId: data.store,
+      warehouseId: data.warehouse,
+      supplierId: data.supplier,
+      productId: data.product,
+      attributeValueId: data.attributeValue,
+      warrantyId: data.warrantyId,
+      warrantyDays: selectedWarrantyDays, // include days
+      status: data.status,
+      amount: Number(totalPrice),
+      amountKey: purchaseKey,
+      quantity: Number(purchaseQuantity),
+      payment: Number(paymentQuantity),
+      commission: Number(commission),
+      due: Number(purchaseDue),
+    };
+
+    const response = await createPurchase(payload).unwrap();
+
+    if (response) {
+      sawal.fire("Success", "Purchase created successfully", "success");
+      reset();
+      setSelectedWarrantyDays(0); // reset warranty days
+    }
+
+    console.log("Purchase Payload =>", response);
+  };
+
+  // Dropdown render helper
+  const renderOptions = (data, loading, placeholder) => {
+    if (loading) return <option>Loading...</option>;
+    return (
+      <>
+        <option value="">{placeholder}</option>
+        {data?.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+      </>
+    );
   };
 
   return (
@@ -32,7 +126,7 @@ const Purchase = () => {
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
           <label className={labelClass}>Store</label>
           <select {...register("store")} className={inputClass}>
-            <option value="">Choose Store</option>
+            {renderOptions(stores?.stores, storesLoading, "Choose Store")}
           </select>
         </div>
 
@@ -40,52 +134,98 @@ const Purchase = () => {
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
           <label className={labelClass}>Warehouse</label>
           <select {...register("warehouse")} className={inputClass}>
-            <option value="">Choose Warehouse</option>
+            {renderOptions(
+              warehouses?.warehouses,
+              warehousesLoading,
+              "Choose Warehouse"
+            )}
           </select>
         </div>
 
-        {/* Product Name */}
+        {/* Supplier */}
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-          <label className={labelClass}>Product Name</label>
-          <input
-            {...register("productName", { required: true })}
-            className={inputClass}
-          />
-          {errors.productName && (
-            <span className="text-red-500 text-sm">Required</span>
-          )}
+          <label className={labelClass}>Supplier</label>
+          <select {...register("supplier")} className={inputClass}>
+            {renderOptions(
+              suppliers?.suppliers,
+              suppliersLoading,
+              "Choose Supplier"
+            )}
+          </select>
         </div>
-        {/* Unit Name (select field) */}
+
+        {/* Product */}
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-          <label className={labelClass}>Variant Name</label>
-          <select {...register("unitName")} className={inputClass}>
-            <option value="">Select Unit</option>
-            {units.map((unit) => (
-              <option key={unit} value={unit}>
-                {unit}
+          <label className={labelClass}>Product</label>
+          <select {...register("product")} className={inputClass}>
+            {renderOptions(
+              products?.products,
+              productsLoading,
+              "Choose Product"
+            )}
+          </select>
+        </div>
+
+        {/* Attribute Value */}
+        <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+          <label className={labelClass}>Variant (Attribute Value)</label>
+          <select {...register("attributeValue")} className={inputClass}>
+            {attributeValuesLoading ? (
+              <option>Loading...</option>
+            ) : (
+              <>
+                <option value="">Choose Variant</option>
+                {attributeValues?.attributeValues?.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.value}
+                  </option>
+                ))}
+              </>
+            )}
+          </select>
+        </div>
+
+        {/* Warranty */}
+        <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+          <label className={labelClass}>Warranty</label>
+          <select
+            {...register("warrantyId")}
+            className={inputClass}
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              const warrantyItem = warranties?.warranty?.find(
+                (w) => w.id === selectedId
+              );
+              setSelectedWarrantyDays(warrantyItem?.days || 0);
+            }}
+          >
+            <option value="">Choose Warranty</option>
+            {warranties?.warranty?.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
               </option>
             ))}
           </select>
         </div>
-        {/* Status (select field) */}
+
+        {/* Display selected warranty days */}
+        <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+          <label className={labelClass}>Warranty Days</label>
+          <input
+            type="number"
+            value={selectedWarrantyDays}
+            readOnly
+            className={`${inputClass} bg-gray-100`}
+          />
+        </div>
+
+        {/* Status */}
         <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
           <label className={labelClass}>Status</label>
           <select {...register("status")} className={inputClass}>
             <option value="">Select Status</option>
-            {statuss?.map((s, i) => (
-              <option key={i} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Status (select field) */}
-        <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-          <label className={labelClass}>Supplier</label>
-          <select {...register("status")} className={inputClass}>
-            <option value="">Select Status</option>
-            {statuss?.map((s, i) => (
-              <option key={i} value={s}>
+            {statuss.map((s) => (
+              <option key={s} value={s}>
                 {s}
               </option>
             ))}
@@ -117,41 +257,70 @@ const Purchase = () => {
         {/* Payment Fields */}
         {paymentType === "payment" && (
           <>
-            {/* Purchase Price */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Purchase Amount</label>
-              <input {...register("purchasePrice")} className={inputClass} />
-            </div>
-            {/* Purchase due */}
-            <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Purchase due</label>
-              <input {...register("purchasedue")} className={inputClass} />
-            </div>
-            {/* Purchase Price secrect key*/}
-            <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Purchase Amount Key</label>
+              <label className={labelClass}>
+                Single Variant Purchase Price
+              </label>
               <input
-                {...register("purchasePriceSecret")}
+                type="number"
+                {...register("purchasePrice")}
+                className={inputClass}
+              />
+            </div>
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+              <label className={labelClass}>Purchase Quantity</label>
+              <input
+                type="number"
+                {...register("purchaseQuantity")}
+                className={inputClass}
+              />
+            </div>
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+              <label className={labelClass}>Total Commission</label>
+              <input
+                type="number"
+                {...register("commission")}
                 className={inputClass}
               />
             </div>
 
-            {/* Purchase Quantity */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Purchase Quantity</label>
-              <input {...register("purchaseQuantity")} className={inputClass} />
+              <label className={labelClass}>Total Price</label>
+              <input
+                type="number"
+                value={totalPrice}
+                readOnly
+                className={`${inputClass} bg-gray-100`}
+              />
             </div>
 
-            {/* Payment Quantity */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Payment </label>
-              <input {...register("paymentQuantity")} className={inputClass} />
+              <label className={labelClass}>Payment</label>
+              <input
+                type="number"
+                {...register("paymentQuantity")}
+                className={inputClass}
+              />
             </div>
 
-            {/* Commission */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-              <label className={labelClass}>Commission</label>
-              <input {...register("commission")} className={inputClass} />
+              <label className={labelClass}>Purchase Due</label>
+              <input
+                type="number"
+                value={purchaseDue}
+                readOnly
+                className={`${inputClass} bg-gray-100`}
+              />
+            </div>
+
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+              <label className={labelClass}>Purchase Key</label>
+              <input
+                type="text"
+                value={purchaseKey}
+                readOnly
+                className={`${inputClass} bg-gray-100`}
+              />
             </div>
           </>
         )}
@@ -159,25 +328,20 @@ const Purchase = () => {
         {/* Expense Fields */}
         {paymentType === "expense" && (
           <>
-            {/* Expense Category (select field) */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
               <label className={labelClass}>Expense Category</label>
               <select {...register("expenseCategory")} className={inputClass}>
-                <option value="">Select Category</option>
-                <option value="salary">Salary</option>
-                <option value="rent">Rent</option>
-                <option value="utility">Utility</option>
-                <option value="misc">Miscellaneous</option>
+                {renderOptions(
+                  expenses?.expenses,
+                  expensesLoading,
+                  "Choose Expense"
+                )}
               </select>
             </div>
-
-            {/* Expense Amount */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
               <label className={labelClass}>Expense Amount</label>
               <input {...register("expenseAmount")} className={inputClass} />
             </div>
-
-            {/* Expense Notes / Details */}
             <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
               <label className={labelClass}>Notes / Details</label>
               <input
@@ -193,9 +357,14 @@ const Purchase = () => {
         <div className="w-full px-2 mt-6 flex justify-end">
           <button
             type="submit"
-            className="bg-blue-600 !text-white px-6 py-4 rounded-md hover:bg-blue-700"
+            disabled={isLoading}
+            className={`px-6 py-3 rounded-md ${
+              isLoading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            } !text-white`}
           >
-            Save Product
+            {isLoading ? "Saving..." : "Save Purchase"}
           </button>
         </div>
       </form>

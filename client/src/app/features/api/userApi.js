@@ -40,11 +40,19 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["Users"],
     }),
+    login: builder.mutation({
+      query: (credentials) => ({
+        url: "/auth/user-login",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
   }),
 });
 
 export const {
   useGetUsersQuery,
+  useLoginMutation,
   useGetUserByIdQuery,
   useCreateUserMutation,
   useUpdateUserMutation,

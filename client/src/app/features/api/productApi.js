@@ -5,6 +5,7 @@ export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: config?.base_url,
+    credentials: "include",
   }),
   tagTypes: ["Products"],
   endpoints: (builder) => ({

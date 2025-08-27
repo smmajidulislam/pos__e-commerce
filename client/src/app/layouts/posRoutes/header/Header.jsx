@@ -8,11 +8,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaEllipsisV, FaExpand } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-
+import { useUser } from "@/app/utils/saveUser/user";
 const Header = () => {
   const { isCollapsed, setIsCollapsed } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { user } = useUser();
 
   const { data, isLoading, isError } = useGetStoresQuery();
 
@@ -145,7 +146,7 @@ const Header = () => {
               alt="Profile"
               className="w-8 h-8 rounded-full"
             />
-            <span className="hidden md:block font-medium">John Doe</span>
+            <span className="hidden md:block font-medium">{user?.name}</span>
             <FaEllipsisV className="hidden md:block" />
           </button>
 

@@ -2,7 +2,6 @@
 import AttributeSelector from "@/app/components/product/AttributeSelector";
 import PosLayout from "@/app/layouts/posRoutes/PosLayout";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import Swal from "sweetalert2";
 import { useGetStoresQuery } from "@/app/features/api/storeApi";
 import { useGetWarehousesQuery } from "@/app/features/api/warehouseApi";
@@ -10,6 +9,8 @@ import { useGetCategoriesQuery } from "@/app/features/api/categoryApi";
 import { useGetBrandsQuery } from "@/app/features/api/brandApi";
 import { useGetAttributesQuery } from "@/app/features/api/attributeApi";
 import { useCreateProductMutation } from "@/app/features/api/productApi";
+import { useGetSubSubCategoriesQuery } from "@/app/features/api/subsubCategoriesApi";
+import { useGetSubCategoriesQuery } from "@/app/features/api/subCategoriesApi";
 
 const Page = () => {
   // API calls
@@ -18,6 +19,8 @@ const Page = () => {
   const { data: categoryData } = useGetCategoriesQuery();
   const { data: brandData } = useGetBrandsQuery();
   const { data: attributeValuesData } = useGetAttributesQuery();
+  const { data: subCategoryData } = useGetSubCategoriesQuery();
+  const { data: subSubCategoryData } = useGetSubSubCategoriesQuery();
 
   const [createProduct] = useCreateProductMutation();
 
@@ -25,10 +28,9 @@ const Page = () => {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm();
-  const [previewImages, setPreviewImages] = useState([]);
-  const [imageFiles, setImageFiles] = useState([]);
 
   // Attribute groups
   const attributeGroups = {};
@@ -40,49 +42,45 @@ const Page = () => {
 
   const onSubmit = async (data) => {
     try {
-      // Optional field handling: শুধু non-empty values add হবে
       const productData = {
-        ...(data.productName && { name: data.productName }),
-        ...(data.description && { description: data.description }),
-        ...(data.sku && { sku: data.sku }),
-        ...(data.slug && { slug: data.slug }),
-        ...(data.store && { storeId: data.store }),
-        ...(data.warehouse && { warehouseId: data.warehouse }),
-        ...(data.category && { categoryId: data.category }),
-        ...(data.subCategory && { subCategoryId: data.subCategory }),
-        ...(data.subSubCategory && { subSubCategoryId: data.subSubCategory }),
-        ...(data.brand && { brandId: data.brand }),
-        ...(data.attributes?.length > 0 && {
-          attributeValueIds: data.attributes,
-        }),
-        ...(data.price ? { price: Number(data.price) } : {}),
-        ...(data.itemCode && { itemCode: data.itemCode }),
-        ...(data.quantityAlert
-          ? { quantityAlert: Number(data.quantityAlert) }
-          : {}),
-        ...(data.manufacturedDate && {
-          manufacturedDate: data.manufacturedDate,
-        }),
-        ...(data.expiryOn && { expiryOn: data.expiryOn }),
+        name: data.productName || "",
+        description: data.description || "",
+        sku: data.sku || "",
+        slug: data.slug || "",
+        storeId: data.store || "",
+        warehouseId: data.warehouse || "",
+        categoryId: data.category || "",
+        subCategoryId: data.subCategory || "",
+        subSubCategoryId: data.subSubCategory || "",
+        brandId: data.brand || "",
+        attributeValueIds: Array.isArray(data.attributes)
+          ? data.attributes
+          : data.attributes
+          ? [data.attributes]
+          : [],
+        price: data.price ? Number(data.price) : 0,
+        itemCode: data.itemCode || "",
+        quantityAlert: data.quantityAlert ? Number(data.quantityAlert) : 0,
+        manufacturedDate: data.manufacturedDate
+          ? new Date(data.manufacturedDate).toISOString()
+          : undefined,
+        expiryDate: data.expiryOn
+          ? new Date(data.expiryOn).toISOString()
+          : undefined,
       };
 
-      console.log("Sending Product Data:", productData);
-
-      const response = await createProduct(productData).unwrap();
-
+      await createProduct(productData).unwrap();
+      reset();
       Swal.fire({
         icon: "success",
         title: "Success",
         text: "Product created successfully!",
       });
-
-      console.log("Created Product:", response);
     } catch (err) {
-      console.error(err);
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to create product!",
+        text: err?.data?.message || "Failed to create product!",
       });
     }
   };
@@ -169,6 +167,50 @@ const Page = () => {
             </div>
           </div>
 
+          {/* Item Code */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Item Code</label>
+            <div className="relative flex">
+              <input
+                {...register("itemCode")}
+                placeholder="Enter Item Code"
+                className={`${inputClass} pr-24`}
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setValue(
+                    "itemCode",
+                    "ITEM-" + Math.floor(Math.random() * 10000)
+                  )
+                }
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 !text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+              >
+                Generate
+              </button>
+            </div>
+          </div>
+
+          {/* Manufactured Date */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Manufactured Date</label>
+            <input
+              type="date"
+              {...register("manufacturedDate")}
+              className={inputClass}
+            />
+          </div>
+
+          {/* Expiry Date */}
+          <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+            <label className={labelClass}>Expiry Date</label>
+            <input
+              type="date"
+              {...register("expiryOn")}
+              className={inputClass}
+            />
+          </div>
+
           {/* Category */}
           <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
             <label className={labelClass}>Category</label>
@@ -187,13 +229,11 @@ const Page = () => {
             <label className={labelClass}>Sub Category</label>
             <select {...register("subCategory")} className={inputClass}>
               <option value="">Choose</option>
-              {categoryData?.categories?.flatMap((cat) =>
-                cat.subCategories?.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.name}
-                  </option>
-                ))
-              )}
+              {subCategoryData?.subCategories?.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -202,15 +242,11 @@ const Page = () => {
             <label className={labelClass}>Sub Sub Category</label>
             <select {...register("subSubCategory")} className={inputClass}>
               <option value="">Choose</option>
-              {categoryData?.categories?.flatMap((cat) =>
-                cat.subCategories?.flatMap((sub) =>
-                  sub.subSubCategories?.map((subSub) => (
-                    <option key={subSub.id} value={subSub.id}>
-                      {subSub.name}
-                    </option>
-                  ))
-                )
-              )}
+              {subSubCategoryData?.subSubCategories?.map((subSub) => (
+                <option key={subSub.id} value={subSub.id}>
+                  {subSub.name}
+                </option>
+              ))}
             </select>
           </div>
 
