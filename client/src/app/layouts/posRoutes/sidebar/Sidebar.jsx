@@ -6,7 +6,6 @@ import {
   FaShoppingCart,
   FaChartBar,
   FaCog,
-  FaDollarSign,
   FaUndo,
   FaMoneyBillAlt,
 } from "react-icons/fa";
@@ -49,11 +48,7 @@ const menuItems = [
       { label: "Purchase Order", link: "/purchaseorder" },
     ],
   },
-  {
-    label: "Priceing",
-    icon: <FaDollarSign size={20} />,
-    link: "/priceing",
-  },
+
   {
     label: "Return Product",
     icon: <FaUndo size={20} />,
