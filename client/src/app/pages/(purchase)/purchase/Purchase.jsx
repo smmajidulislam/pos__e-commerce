@@ -24,8 +24,7 @@ const Purchase = () => {
   const { data: attributeValues, isLoading: attributeValuesLoading } =
     useGetAttributeValuesQuery();
   const { data: expenses, isLoading: expensesLoading } = useGetExpensesQuery();
-  const { data: warranties, isLoading: warrantiesLoading } =
-    useGetWarrantiesQuery();
+  const { data: warranties } = useGetWarrantiesQuery();
 
   // API Mutations
   const [createPurchase, { isLoading }] = useCreatePurchaseMutation();
@@ -97,8 +96,6 @@ const Purchase = () => {
       reset();
       setSelectedWarrantyDays(0); // reset warranty days
     }
-
-    console.log("Purchase Payload =>", response);
   };
 
   // Dropdown render helper
