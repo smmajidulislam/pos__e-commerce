@@ -20,7 +20,6 @@ const Coupons = () => {
   const [editingData, setEditingData] = useState(null);
   const [filters, setFilters] = useState({});
   const { data: couponsData } = useGetCouponsQuery();
-  console.log(couponsData);
 
   // RTK Query hooks
   const {

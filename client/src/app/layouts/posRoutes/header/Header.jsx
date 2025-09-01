@@ -1,5 +1,4 @@
 "use client";
-
 import { useGetStoresQuery } from "@/app/features/api/storeApi";
 import { useTheme } from "@/app/hooks/theme/useThem";
 import { MyErrorSawal } from "@/app/utils/Sawal";
@@ -47,7 +46,6 @@ const Header = () => {
     if (!storeObj) return;
     saveStore(storeObj);
     setErrorMessage(""); // clear error on selection
-    console.log("Selected Store:", storeObj);
   };
 
   // Initial validation: token matches available stores
@@ -55,9 +53,9 @@ const Header = () => {
     if (!tokenLoading && data?.stores) {
       if (selectedStore) {
         const matched = data.stores.find((s) => s.id === selectedStore.id);
-        if (!matched) MyErrorSawal(true, 8000, "Please select a store");
+        if (!matched) MyErrorSawal(true, 15000, "Please select a store");
       } else {
-        MyErrorSawal(true, 8000, "Please select a store");
+        MyErrorSawal(true, 15000, "Please select a store");
       }
     }
   }, [tokenLoading, data, selectedStore]);

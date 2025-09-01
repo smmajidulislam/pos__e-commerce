@@ -53,10 +53,10 @@ export const productImageApi = createApi({
       invalidatesTags: ["ProductImages"],
     }),
     addProductImages: builder.mutation({
-      query: ({ productId, images }) => ({
+      query: ({ productId, formData }) => ({
         url: `/product-images/product/${productId}/add`,
         method: "POST",
-        body: images,
+        body: formData,
       }),
       invalidatesTags: ["ProductImages"],
     }),

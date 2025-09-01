@@ -10,16 +10,21 @@ import { useGetBrandsQuery } from "@/app/features/api/brandApi";
 import { useGetAttributesQuery } from "@/app/features/api/attributeApi";
 import { useUpdateProductMutation } from "@/app/features/api/productApi";
 import { useAddProductImagesMutation } from "@/app/features/api/productImageApi";
+import { useGetSubSubCategoriesQuery } from "@/app/features/api/subsubCategoriesApi";
+import { useGetSubCategoriesQuery } from "@/app/features/api/subCategoriesApi";
 
 const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
   const { data: storeData } = useGetStoresQuery();
   const { data: wareHouseData } = useGetWarehousesQuery();
   const { data: categoryData } = useGetCategoriesQuery();
+  const { data: subCategoryData } = useGetSubCategoriesQuery();
+  const { data: subSubCategoryData } = useGetSubSubCategoriesQuery();
   const { data: brandData } = useGetBrandsQuery();
   const { data: attributeValuesData } = useGetAttributesQuery();
-  const [addProductImages] = useAddProductImagesMutation();
 
+  const [addProductImages] = useAddProductImagesMutation();
   const [updateProduct] = useUpdateProductMutation();
+
   const [previewImages, setPreviewImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [selectedAttributes, setSelectedAttributes] = useState(
@@ -54,39 +59,7 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
     if (productData?.images) setPreviewImages(productData.images);
   }, [productData]);
 
-  // const handleImageChange = async (e) => {
-  //   const files = Array.from(e.target.files);
-  //   console.log(files);
-  //   setImageFiles(files);
-
-  //   const formData = new FormData();
-  //   files.forEach((file) => formData.append("images", file));
-
-  //   const previewUrls = files.map((file) => URL.createObjectURL(file));
-  //   setPreviewImages(previewUrls);
-
-  //   try {
-  //     const res = await addProductImages({
-  //       id: productData.id,
-  //       formData,
-  //     }).unwrap();
-  //     console.log(res);
-
-  //     Swal.fire({
-  //       icon: "success",
-  //       title: "Uploaded",
-  //       text: "Images uploaded successfully!",
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Error",
-  //       text: "Failed to upload images!",
-  //     });
-  //   }
-  // };
-
+  // handle attributes
   const handleAttributeChange = (attrId) => {
     const updated = selectedAttributes.includes(attrId)
       ? selectedAttributes.filter((id) => id !== attrId)
@@ -95,7 +68,8 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
     setValue("attributes", updated);
   };
 
-  const onSubmit = async (data) => {
+  // form submit (details update)
+  const onSubmitDetails = async (data) => {
     try {
       const formData = new FormData();
       formData.append("name", data.productName);
@@ -116,15 +90,12 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
         );
       if (data.price) formData.append("price", Number(data.price));
 
-      // Append images
-      imageFiles.forEach((file) => formData.append("images", file));
-
       await updateProduct({ id: productData.id, body: formData }).unwrap();
 
       Swal.fire({
         icon: "success",
         title: "Updated",
-        text: "Product updated successfully!",
+        text: "Product details updated successfully!",
       });
       setIsOpen(false);
     } catch (err) {
@@ -132,8 +103,27 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update product!",
+        text: "Failed to update product details!",
       });
+    }
+  };
+
+  const onSubmitImages = async (e) => {
+    e.preventDefault();
+    console.log(productData);
+
+    try {
+      const formData = new FormData();
+      imageFiles.forEach((file) => formData.append("images", file));
+
+      // API call
+      const res = await addProductImages({
+        productId: productData.id,
+        formData,
+      }).unwrap();
+      console.log(res);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -147,10 +137,12 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center overflow-auto p-4">
       <div className="bg-white rounded-md w-full max-w-4xl p-6">
         <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+
+        {/* FORM 1: PRODUCT DETAILS */}
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmitDetails)}
           encType="multipart/form-data"
-          className="flex flex-wrap -mx-2"
+          className="flex flex-wrap -mx-2 mb-8 border-b pb-6"
         >
           {/* Store */}
           <div className="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
@@ -319,30 +311,6 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             )}
           </div>
 
-          {/* Images */}
-          <div className="w-full px-2 mb-6">
-            <label className={labelClass}>Images</label>
-            <input
-              type="file"
-              accept="image/*"
-              name="images"
-              {...register("images")}
-              multiple
-              // onChange={handleImageChange}
-              className={inputClass}
-            />
-            <div className="flex mt-2 gap-2 flex-wrap">
-              {previewImages.map((src, idx) => (
-                <img
-                  key={idx}
-                  src={src}
-                  alt={`Preview ${idx}`}
-                  className="w-20 h-20 object-cover rounded"
-                />
-              ))}
-            </div>
-          </div>
-
           {/* Description */}
           <div className="w-full px-2 mb-4">
             <label className={labelClass}>Description</label>
@@ -358,15 +326,52 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="bg-gray-400 text-white px-6 py-2 rounded-md hover:bg-gray-500"
+              className="bg-gray-400 !text-white px-6 py-2 rounded-md hover:bg-gray-500"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+              className="bg-blue-600 !text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
-              Update Product
+              Update Details
+            </button>
+          </div>
+        </form>
+
+        {/* FORM 2: ONLY IMAGES */}
+        <form onSubmit={onSubmitImages} encType="multipart/form-data">
+          <div className="w-full px-2 mb-6">
+            <label className={labelClass}>Images</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                const files = Array.from(e.target.files);
+                setImageFiles(files);
+                setPreviewImages(files.map((f) => URL.createObjectURL(f)));
+              }}
+              className={inputClass}
+            />
+            <div className="flex mt-2 gap-2 flex-wrap">
+              {previewImages.map((src, idx) => (
+                <img
+                  key={idx}
+                  src={src}
+                  alt={`Preview ${idx}`}
+                  className="w-20 h-20 object-cover rounded"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="w-full px-2 mt-6 flex justify-end gap-2">
+            <button
+              type="submit"
+              className="bg-green-600 !text-white px-6 py-2 rounded-md hover:bg-green-700"
+            >
+              Upload Images
             </button>
           </div>
         </form>

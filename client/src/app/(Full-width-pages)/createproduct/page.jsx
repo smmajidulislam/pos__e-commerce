@@ -69,7 +69,8 @@ const Page = () => {
           : undefined,
       };
 
-      await createProduct(productData).unwrap();
+      const response = await createProduct(productData).unwrap();
+      console.log(response);
       reset();
       Swal.fire({
         icon: "success",
@@ -80,7 +81,10 @@ const Page = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: err?.data?.message || "Failed to create product!",
+        text:
+          err?.data?.message ||
+          "Something went wrong! Failed to create product!" ||
+          "Product already exists! ",
       });
     }
   };
