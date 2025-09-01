@@ -18,9 +18,16 @@ import { salesApi } from "../features/api/salesApi";
 import { customerApi } from "../features/api/customersApi";
 import { warrantyApi } from "../features/api/warrantiesApi";
 import { purchaseApi } from "../features/api/purchasesApi";
+import { priceApi } from "../features/api/getPrice";
+import { reportsApi } from "../features/api/reports";
+import { stockExchangeApi } from "../features/api/stockExchangeApi";
+import { returnProductApi } from "../features/api/returnProductApi";
+import { duePaymentApi } from "../features/api/duePayment";
+import posSlice from "../features/slice/posSlice";
 
 export const store = configureStore({
   reducer: {
+    pos: posSlice,
     // API reducers
     [userApi.reducerPath]: userApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
@@ -39,6 +46,10 @@ export const store = configureStore({
     [customerApi.reducerPath]: customerApi.reducer,
     [warrantyApi.reducerPath]: warrantyApi.reducer,
     [purchaseApi.reducerPath]: purchaseApi.reducer,
+    [priceApi.reducerPath]: priceApi.reducer,
+    [reportsApi.reducerPath]: reportsApi.reducer,
+    [stockExchangeApi.reducerPath]: stockExchangeApi.reducer,
+    [returnProductApi.reducerPath]: returnProductApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -59,5 +70,10 @@ export const store = configureStore({
       customerApi.middleware,
       warrantyApi.middleware,
       purchaseApi.middleware,
+      priceApi.middleware,
+      reportsApi.middleware,
+      stockExchangeApi.middleware,
+      returnProductApi.middleware,
+      duePaymentApi.middleware,
     ]),
 });

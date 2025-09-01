@@ -1,103 +1,127 @@
 "use client";
-import React, { useState } from "react";
+import { useGetAttributeValuesQuery } from "@/app/features/api/attributeApi";
+import { useGetCustomersQuery } from "@/app/features/api/customersApi";
+import { useCreateSaleMutation } from "@/app/features/api/salesApi";
+import { useGetPurchasesQuery } from "@/app/features/api/purchasesApi";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-
-// Dummy Data
-const customerList = [
-  { id: 1, name: "Customer One" },
-  { id: 2, name: "Customer Two" },
-  { id: 3, name: "Customer Three" },
-];
-
-const productList = [
-  { id: 1, name: "12-M.M chari 6 Feet", company: "Abul Khair Steel Ltd" },
-  { id: 2, name: "Rod 16-M.M", company: "BSRM Steel Ltd" },
-];
+import { useUpdatePriceMutation } from "@/app/features/api/getPrice";
+import sawal from "sweetalert2";
 
 const Sales = () => {
-  const { register, handleSubmit, reset, setValue, watch } = useForm({
+  const [errorsInGetprice, setError] = useState(false);
+  const { data: customersData } = useGetCustomersQuery();
+  const { data: attributeValuesData } = useGetAttributeValuesQuery();
+  const { data: purchasesData } = useGetPurchasesQuery();
+  const [getPrice, { isLoading: isPriceLoading }] = useUpdatePriceMutation();
+  const [createSale] = useCreateSaleMutation();
+
+  const customers = customersData?.customers || [];
+  const purchases = purchasesData?.data || [];
+
+  const { register, handleSubmit, reset, watch, setValue } = useForm({
     defaultValues: {
       customer: "",
-      productName: "",
-      company: "",
+      product: "",
+      selectedVariant: "",
       variant: "",
-      exchangeValue: "",
       quantity: "",
-      discountType: "",
+      exchangeValue: "",
+      discountType: "cash",
       discountValue: "",
-      tax: "",
+      taxType: "cash",
       taxValue: "",
-      paymentOption: "cash",
       paymentAmount: "",
-      dueAmount: "",
+      salesPrice: "",
     },
   });
 
   const [step, setStep] = useState(1);
-  const [customerSearch, setCustomerSearch] = useState("");
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [priceData, setPriceData] = useState({ amount: null, unitPrice: null });
 
-  const [productSearch, setProductSearch] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const selectedProduct = watch("product");
+  const quantity = Number(watch("quantity")) || 0;
+  const exchangeValue = Number(watch("exchangeValue")) || 0;
+  const paymentAmount = Number(watch("paymentAmount")) || 0;
+  const salesPrice = Number(watch("salesPrice")) || 0;
 
-  const discountType = watch("discountType");
-  const selectedTax = watch("tax");
-  const paymentOption = watch("paymentOption");
+  // Selected Variant input update
+  useEffect(() => {
+    if (selectedProduct) {
+      const purchase = purchases.find((p) => p.id === selectedProduct);
+      setValue("selectedVariant", purchase?.attribute?.value || "");
+    } else {
+      setValue("selectedVariant", "");
+    }
+  }, [selectedProduct, purchases, setValue]);
 
-  const variantOptions = ["Ton", "Kg"];
-
-  const handleCustomerSearch = (value) => {
-    setCustomerSearch(value);
-    if (value.length > 0) {
-      setFilteredCustomers(
-        customerList.filter((c) =>
-          c.name.toLowerCase().includes(value.toLowerCase())
-        )
+  // Get Price Calculation
+  const getPriceCalculation = async () => {
+    try {
+      const payload = {
+        weight: exchangeValue,
+        calQ: quantity,
+        purchaseId: selectedProduct,
+      };
+      const response = await getPrice(payload).unwrap();
+      setPriceData({
+        amount: response.purchase?.amount || 0,
+        unitPrice: response.unitPrice || 0,
+      });
+      setError(false);
+      return true;
+    } catch (error) {
+      setPriceData({ amount: 0, unitPrice: 0 });
+      setError(true);
+      sawal.fire(
+        "Error!",
+        error?.data?.message || "Failed to fetch price.",
+        "error"
       );
-    } else setFilteredCustomers([]);
+      return false;
+    }
   };
 
-  const handleSelectCustomer = (customer) => {
-    setSelectedCustomer(customer);
-    setCustomerSearch(customer.name);
-    setFilteredCustomers([]);
-    setValue("customer", customer.name);
-  };
+  // Submit Sale
+  const onSubmit = async (data) => {
+    try {
+      const salesPayload = {
+        customerId: data.customer || "N/A",
+        totalPayment: paymentAmount || 0,
+        due: salesPrice - paymentAmount || 0,
+        products: [
+          {
+            purchaseId: data.product || "N/A",
+            variantValueId: data.variant || "N/A",
+            quantity: quantity,
+            unitPrice: priceData.unitPrice || 0,
+            price: (priceData.unitPrice || 0) * quantity,
+            salesPrice: salesPrice,
+            discountType: "CASH",
+            discount: Number(data.discountValue) || 0,
+            taxType: "CASH",
+            tax: Number(data.taxValue) || 0,
+            exchangeCal: exchangeValue,
+            couponCode: null,
+          },
+        ],
+      };
 
-  const handleProductSearch = (value) => {
-    setProductSearch(value);
-    if (value.length > 0) {
-      setFilteredProducts(
-        productList.filter((p) =>
-          p.name.toLowerCase().includes(value.toLowerCase())
-        )
+      const response = await createSale(salesPayload).unwrap();
+      if (response?.success) {
+        sawal.fire("Success", "Sale Created Successfully", "success");
+      }
+
+      reset();
+      setStep(1);
+      setPriceData({ amount: null, unitPrice: null });
+    } catch (error) {
+      sawal.fire(
+        "Error!",
+        error?.data?.message || "Failed to create sale.",
+        "error"
       );
-    } else setFilteredProducts([]);
-  };
-
-  const handleSelectProduct = (product) => {
-    setSelectedProduct(product);
-    setProductSearch(product.name);
-    setFilteredProducts([]);
-    setValue("productName", product.name);
-    setValue("company", product.company);
-  };
-
-  const onSubmit = (data) => {
-    const finalData = {
-      ...data,
-      discount: { type: data.discountType, value: data.discountValue },
-      tax: { type: data.tax, value: data.taxValue },
-    };
-    console.log("Form Data:", finalData);
-    reset();
-    setSelectedCustomer(null);
-    setSelectedProduct(null);
-    setCustomerSearch("");
-    setProductSearch("");
-    setStep(1);
+    }
   };
 
   return (
@@ -107,83 +131,71 @@ const Sales = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Step 1 */}
         {step === 1 && (
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            {/* Customer */}
-            <div className="relative flex flex-col">
-              <label className="block text-sm font-medium mb-1">Customer</label>
-              <input
-                type="text"
-                placeholder="Search Customer"
-                value={customerSearch}
-                onChange={(e) => handleCustomerSearch(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
-              />
-              {filteredCustomers.length > 0 && (
-                <ul className="absolute bg-white border rounded w-full mt-1 max-h-40 overflow-y-auto z-10">
-                  {filteredCustomers.map((c) => (
-                    <li
-                      key={c.id}
-                      onClick={() => handleSelectCustomer(c)}
-                      className="p-2 cursor-pointer hover:bg-gray-100"
-                    >
-                      {c.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <input type="hidden" {...register("customer")} />
-            </div>
-
-            {/* Product */}
-            <div className="relative flex flex-col">
-              <label className="block text-sm font-medium mb-1">Product</label>
-              <input
-                type="text"
-                placeholder="Search Product"
-                value={productSearch}
-                onChange={(e) => handleProductSearch(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
-              />
-              {filteredProducts.length > 0 && (
-                <ul className="absolute bg-white border rounded w-full mt-1 max-h-40 overflow-y-auto z-10">
-                  {filteredProducts.map((p) => (
-                    <li
-                      key={p.id}
-                      onClick={() => handleSelectProduct(p)}
-                      className="p-2 cursor-pointer hover:bg-gray-100"
-                    >
-                      {p.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <input type="hidden" {...register("productName")} />
-              <input type="hidden" {...register("company")} />
-            </div>
-
-            {/* Variant */}
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
             <div className="flex flex-col">
-              <label className="block text-sm font-medium mb-1">Variant</label>
+              <label className="block text-sm font-medium mb-1">Customer</label>
               <select
-                {...register("variant")}
-                className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
+                {...register("customer")}
+                className="w-full border p-2 rounded"
               >
-                {variantOptions.map((v, idx) => (
-                  <option key={idx} value={v}>
-                    {v}
+                <option value="">Select Customer</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.firstName} {c.lastName}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Quantity */}
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">Product</label>
+              <select
+                {...register("product")}
+                className="w-full border p-2 rounded"
+              >
+                <option value="">Select Product</option>
+                {purchases.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.product.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">
+                Selected Variant
+              </label>
+              <input
+                type="text"
+                {...register("selectedVariant")}
+                readOnly
+                className="w-full border p-2 rounded bg-gray-100"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">Variant</label>
+              <select
+                {...register("variant")}
+                className="w-full border p-2 rounded"
+              >
+                <option value="">Select Variant</option>
+                {attributeValuesData?.attributeValues?.map((attr) => (
+                  <option key={attr.id} value={attr.id}>
+                    {attr.value}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex flex-col">
               <label className="block text-sm font-medium mb-1">Quantity</label>
               <input
                 type="number"
                 {...register("quantity")}
                 placeholder="Quantity"
-                className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
+                className="w-full border p-2 rounded"
               />
             </div>
           </div>
@@ -199,7 +211,7 @@ const Sales = () => {
               type="number"
               {...register("exchangeValue")}
               placeholder="Enter Exchange Value"
-              className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
+              className="w-full border p-2 rounded"
             />
           </div>
         )}
@@ -207,120 +219,60 @@ const Sales = () => {
         {/* Step 3 */}
         {step === 3 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Discount */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 col-span-1 sm:col-span-2">
-              <label className="block text-sm font-medium mb-2 sm:mb-0 sm:w-1/3">
-                Discount
-              </label>
-              <div className="flex flex-1 gap-2">
-                <select
-                  {...register("discountType")}
-                  className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:outline-none"
-                >
-                  <option value="">Select Type</option>
-                  <option value="percentage">Percentage (%)</option>
-                  <option value="cash">Cash</option>
-                </select>
-
-                <input
-                  type="number"
-                  {...register("discountValue")}
-                  placeholder={
-                    discountType === "percentage"
-                      ? "Enter (%)"
-                      : discountType === "cash"
-                      ? "Enter Cash"
-                      : "Enter discount"
-                  }
-                  className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:outline-none"
-                />
-              </div>
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">Amount</label>
+              <input
+                type="text"
+                value={priceData.amount ?? ""}
+                readOnly
+                className="w-full border p-2 rounded bg-gray-100"
+              />
             </div>
 
-            {/* Tax */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 col-span-1 sm:col-span-1">
-              <label className="block text-sm font-medium mb-2 sm:mb-0 sm:w-1/3">
-                Tax
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">
+                Unit Price
               </label>
-              <div className="flex flex-1 gap-2">
-                <select
-                  {...register("tax")}
-                  className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:outline-none"
-                >
-                  <option value="">Select Type</option>
-                  <option value="withTax">Percentage (%)</option>
-                  <option value="withoutTax">Cash</option>
-                </select>
-
-                <input
-                  type="number"
-                  {...register("taxValue")}
-                  placeholder={
-                    selectedTax === "withTax"
-                      ? "Enter (%)"
-                      : selectedTax === "withoutTax"
-                      ? "Enter Cash"
-                      : "Enter Tax"
-                  }
-                  className="flex-1 border border-gray-300 rounded-lg p-2.5 text-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                value={priceData.unitPrice ?? ""}
+                readOnly
+                className="w-full border p-2 rounded bg-gray-100"
+              />
             </div>
 
-            {/* Payment / Due */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 col-span-1 sm:col-span-2">
-              <label className="block text-sm font-medium mb-2 sm:mb-0 sm:w-1/3">
-                Payment Type
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">
+                Sales Price
               </label>
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="flex gap-4 items-center">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      value="cash"
-                      {...register("paymentOption")}
-                      defaultChecked
-                      className="form-radio text-green-600"
-                    />
-                    Cash
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      value="due"
-                      {...register("paymentOption")}
-                      className="form-radio text-green-600"
-                    />
-                    Due
-                  </label>
-                </div>
+              <input
+                type="number"
+                {...register("salesPrice")}
+                placeholder="Enter Sales Price"
+                className="w-full border p-2 rounded"
+              />
+            </div>
 
-                {paymentOption === "cash" && (
-                  <input
-                    type="number"
-                    {...register("paymentAmount")}
-                    placeholder="Enter Payment Amount"
-                    className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
-                  />
-                )}
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">
+                Payment Amount
+              </label>
+              <input
+                type="number"
+                {...register("paymentAmount")}
+                placeholder="Enter Payment Amount"
+                className="w-full border p-2 rounded"
+              />
+            </div>
 
-                {paymentOption === "due" && (
-                  <div className="space-y-2">
-                    <input
-                      type="number"
-                      {...register("paymentAmount")}
-                      placeholder="Enter Payment Amount"
-                      className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
-                    />
-                    <input
-                      type="number"
-                      {...register("dueAmount")}
-                      placeholder="Enter Due Amount"
-                      className="w-full border border-gray-300 p-2 rounded focus:ring focus:ring-green-200 focus:outline-none"
-                    />
-                  </div>
-                )}
-              </div>
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium mb-1">Due</label>
+              <input
+                type="text"
+                value={(salesPrice - paymentAmount).toFixed(2)}
+                readOnly
+                className="w-full border p-2 rounded bg-gray-100"
+              />
             </div>
           </div>
         )}
@@ -334,25 +286,39 @@ const Sales = () => {
           {step > 1 && (
             <button
               type="button"
-              onClick={() => setStep((prev) => prev - 1)}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm text-black"
+              onClick={() => {
+                setStep((prev) => prev - 1);
+                setError(false);
+              }}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             >
               Back
             </button>
           )}
 
-          {step <= 3 ? (
+          {step <= 2 ? (
             <button
               type="button"
-              onClick={() => setStep((prev) => prev + 1)}
-              className="ml-auto px-4 py-2 bg-green-600 rounded hover:bg-green-700 text-sm !text-white"
+              onClick={async () => {
+                if (step === 1) setStep((prev) => prev + 1);
+                else if (step === 2) {
+                  const success = await getPriceCalculation();
+                  if (success) setStep((prev) => prev + 1);
+                }
+              }}
+              disabled={isPriceLoading || errorsInGetprice}
+              className={`ml-auto px-4 py-2 rounded text-white ${
+                isPriceLoading || errorsInGetprice
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
             >
-              Next
+              {isPriceLoading ? "Calculating..." : "Next"}
             </button>
           ) : (
             <button
               type="submit"
-              className="ml-auto px-6 py-2 bg-blue-600 rounded hover:bg-blue-700 text-sm !text-white"
+              className="ml-auto px-6 py-2 bg-blue-600 rounded hover:bg-blue-700 !text-white"
             >
               Confirm
             </button>

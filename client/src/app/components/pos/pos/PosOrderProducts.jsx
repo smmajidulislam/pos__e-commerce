@@ -1,93 +1,78 @@
 "use client";
-import { useState } from "react";
-import { FaTrash } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { updateQty, removeProduct } from "@/app/features/slice/posSlice";
+import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 
 const PosOrderProducts = () => {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Product 1", qty: 1, price: 100 },
-    { id: 2, name: "Product 2", qty: 2, price: 150 },
-    { id: 3, name: "Product 3", qty: 2, price: 150 },
-    { id: 5, name: "Product 4", qty: 2, price: 150 },
-    { id: 6, name: "Product 4", qty: 2, price: 150 },
-    { id: 7, name: "Product 4", qty: 2, price: 150 },
-    { id: 8, name: "Product 4", qty: 2, price: 150 },
-    { id: 9, name: "Product 4", qty: 2, price: 150 },
-    { id: 10, name: "Product 4", qty: 2, price: 150 },
-    { id: 11, name: "Product 4", qty: 2, price: 150 },
-    { id: 12, name: "Product 4", qty: 2, price: 150 },
-  ]);
-
-  const handleQtyChange = (id, value) => {
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, qty: Math.max(1, Number(value)) } : p
-      )
-    );
-  };
-
-  const handleIncrement = (id) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, qty: p.qty + 1 } : p))
-    );
-  };
-
-  const handleDecrement = (id) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, qty: Math.max(1, p.qty - 1) } : p))
-    );
-  };
-
-  const handleRemove = (id) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
+  const { products } = useSelector((state) => state.pos);
+  const dispatch = useDispatch();
 
   return (
-    <div className="bg-white p-1 rounded shadow overflow-y-auto scrollbar-hide max-h-[500px]">
+    <div className="bg-white p-1 rounded shadow overflow-y-auto max-h-[500px]">
       <h3 className="font-semibold mb-1 text-xs">Selected Products</h3>
       <table className="w-full text-left text-xs border-separate border-spacing-0">
         <thead>
           <tr className="border-b">
             <th className="py-0.5 px-1 w-5">SL</th>
             <th className="py-0.5 px-1">Product</th>
-            <th className="py-0.5 px-1 w-20 text-center">Qty</th>
+            <th className="py-0.5 px-1 w-24 text-center">Qty</th>
             <th className="py-0.5 px-1 w-5 text-center">Remove</th>
           </tr>
         </thead>
         <tbody>
-          {products.map((p, i) => (
-            <tr key={p.id} className="border-b">
+          {products?.map((p, i) => (
+            <tr key={p.purchaseId} className="border-b">
               <td className="py-0.5 px-1">{i + 1}</td>
-              <td className="py-0.5 px-1">{p.name}</td>
+              <td className="py-0.5 px-1">{p.name || "Product"}</td>
               <td className="py-0.5 px-1 text-center">
                 <div className="flex justify-center items-center gap-1">
                   <button
-                    onClick={() => handleDecrement(p.id)}
-                    className="bg-gray-200 text-xs w-4 h-4 rounded"
+                    className="p-1 bg-gray-200 rounded"
+                    onClick={() =>
+                      dispatch(
+                        updateQty({
+                          purchaseId: p.purchaseId,
+                          quantity: Math.max(1, p.quantity - 1),
+                        })
+                      )
+                    }
                   >
-                    -
+                    <FaMinus size={10} />
                   </button>
                   <input
                     type="number"
-                    value={p.qty}
-                    onChange={(e) => handleQtyChange(p.id, e.target.value)}
+                    value={p.quantity}
+                    onChange={(e) =>
+                      dispatch(
+                        updateQty({
+                          purchaseId: p.purchaseId,
+                          quantity: Number(e.target.value),
+                        })
+                      )
+                    }
                     className="border p-0.5 w-10 rounded text-center text-xs"
                     min={1}
                   />
                   <button
-                    onClick={() => handleIncrement(p.id)}
-                    className="bg-gray-200 text-xs w-4 h-4 rounded"
+                    className="p-1 bg-gray-200 rounded"
+                    onClick={() =>
+                      dispatch(
+                        updateQty({
+                          purchaseId: p.purchaseId,
+                          quantity: p.quantity + 1,
+                        })
+                      )
+                    }
                   >
-                    +
+                    <FaPlus size={10} />
                   </button>
                 </div>
               </td>
               <td className="py-0.5 px-1 text-center">
-                <div className="flex justify-center items-center h-full">
-                  <FaTrash
-                    className="text-red-500 cursor-pointer text-xs"
-                    onClick={() => handleRemove(p.id)}
-                  />
-                </div>
+                <FaTrash
+                  className="text-red-500 cursor-pointer text-xs"
+                  onClick={() => dispatch(removeProduct(p.purchaseId))}
+                />
               </td>
             </tr>
           ))}

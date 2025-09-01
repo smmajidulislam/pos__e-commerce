@@ -1,31 +1,38 @@
 "use client";
+import { useCreateSalesDuePaymentMutation } from "@/app/features/api/duePayment";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { FaTimes } from "react-icons/fa";
+import swal from "sweetalert2";
 
-const AddPament = ({
-  isOpen,
-  setIsOpen,
-  posList = [],
-  initialData,
-  onSubmit,
-}) => {
+const AddPayment = ({ isOpen, setIsOpen, initialData }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm({
-    defaultValues: initialData || {},
+    defaultValues: {
+      salesId: initialData?.salesId || "",
+      amount: "",
+    },
   });
+  const [createSalesDuePayment] = useCreateSalesDuePaymentMutation();
 
-  const handleFormSubmit = (data) => {
-    if (onSubmit) onSubmit(data);
+  const handleFormSubmit = async (data) => {
+    data = { salesId: initialData?.salesId, amount: Number(data.amount) };
+    console.log("Form Data:", data);
+    const res = await createSalesDuePayment(data).unwrap();
+    console.log(res);
+    if (res?.message) {
+      swal.fire("Success!", "Payment added successfully", "success");
+    }
+
     reset();
     setIsOpen(false);
   };
 
-  if (!isOpen) return null; // Trigger button বাদ দেওয়া হয়েছে, শুধু modal show হবে
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -41,6 +48,9 @@ const AddPament = ({
         <h2 className="text-xl font-bold mb-4">Add Payment</h2>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          {/* Hidden SalesId */}
+          <input type="hidden" {...register("salesId", { required: false })} />
+
           {/* Amount */}
           <div>
             <label className="block mb-1 font-semibold text-gray-700">
@@ -55,29 +65,6 @@ const AddPament = ({
             {errors.amount && (
               <span className="text-red-500 text-sm">
                 {errors.amount.message}
-              </span>
-            )}
-          </div>
-
-          {/* POS Select */}
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">
-              Select POS
-            </label>
-            <select
-              {...register("posId", { required: "Please select a POS" })}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">Select POS</option>
-              {posList.map((pos) => (
-                <option key={pos.id} value={pos.id}>
-                  {pos.name}
-                </option>
-              ))}
-            </select>
-            {errors.posId && (
-              <span className="text-red-500 text-sm">
-                {errors.posId.message}
               </span>
             )}
           </div>
@@ -97,4 +84,4 @@ const AddPament = ({
   );
 };
 
-export default AddPament;
+export default AddPayment;

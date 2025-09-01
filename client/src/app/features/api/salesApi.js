@@ -14,10 +14,7 @@ export const salesApi = createApi({
       query: (id) => `/sales/${id}`,
       providesTags: ["Sales"],
     }),
-    getPrice: builder.query({
-      query: () => "/sales/get-price",
-      providesTags: ["Sales"],
-    }),
+
     createSale: builder.mutation({
       query: (newSale) => ({ url: "/sales", method: "POST", body: newSale }),
       invalidatesTags: ["Sales"],
@@ -64,7 +61,6 @@ export const salesApi = createApi({
 export const {
   useGetSalesQuery,
   useGetSaleByIdQuery,
-  useGetPriceQuery,
   useCreateSaleMutation,
   useUpdateSaleMutation,
   useDeleteSaleMutation,

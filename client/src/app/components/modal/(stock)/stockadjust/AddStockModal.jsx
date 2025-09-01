@@ -20,29 +20,21 @@ const AddCouponModal = () => {
 
   const handleFormSubmit = async (data) => {
     try {
-      // const payload = {
-      //   code: data.code,
-      //   discount: Number(data.discount),
-      //   productId: data.productId,
-      // };
-      const d = {
-        code: "WELCOME501",
-        discount: 50,
-        discountType: "FIXED",
-        expiresAt: "2025-12-31T00:00:00.000Z",
-        isActive: true,
-        minimumPurchaseAmount: 500,
-        productIds: [data.productId],
-        // assignedById: "cmelgnnf30000ce7ixh3ru119",
+      const payload = {
+        code: data.code,
+        discount: Number(data.discount),
+        productIds: [data.productId], // productIds as array
+        expiresAt: data.expiresAt
+          ? new Date(data.expiresAt).toISOString()
+          : undefined,
+        discountType: "FIXED", // fixed discount type
       };
 
-      // if (data.expiresAt) {
-      //   payload.expiresAt = new Date(data.expiresAt).toISOString();
-      // }
-      // console.log(payload);
-      const res = await createCoupon(d);
+      console.log("Payload:", payload);
 
-      console.log(res);
+      const res = await createCoupon(payload).unwrap();
+      console.log("Coupon created:", res);
+
       Swal.fire("Success", "Coupon created successfully", "success");
       reset();
       setIsOpen(false);
@@ -60,7 +52,7 @@ const AddCouponModal = () => {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center px-4 py-2 bg-green-500 !text-white rounded hover:bg-green-600"
+        className="flex items-center px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
       >
         <FaPlus className="mr-2" /> Add Coupon
       </button>
@@ -109,7 +101,7 @@ const AddCouponModal = () => {
                   type="number"
                   {...register("discount", {
                     required: "Discount is required",
-                    min: { value: 0, message: "Minimum is 0" },
+                    min: { value: 0, message: "Minimum discount is 0" },
                   })}
                   className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Enter discount"

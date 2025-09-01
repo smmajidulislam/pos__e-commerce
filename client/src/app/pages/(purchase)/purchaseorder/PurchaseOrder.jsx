@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Filtering from "@/app/components/filter/Filtering";
-import { Table, Space, Spin } from "antd";
-import { FaPrint, FaFilePdf } from "react-icons/fa";
+import { Table, Space } from "antd";
+import { FaPrint, FaFilePdf, FaMoneyBillWave } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import Swal from "sweetalert2";
 import EditPurchaseModal from "@/app/components/modal/(purchase)/purchaseEdit/EditPurchaseModal";
+import AddPurchasePayment from "@/app/components/modal/(purchase)/AddPurchasesModal";
 import {
   useGetPurchasesQuery,
   useDeletePurchaseMutation,
@@ -17,6 +18,10 @@ const PurchaseOrder = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Payment Modal
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentData, setPaymentData] = useState(null);
 
   const { data: purchaseData, isLoading } = useGetPurchasesQuery();
   const [deletePurchase] = useDeletePurchaseMutation();
@@ -53,9 +58,13 @@ const PurchaseOrder = () => {
     }
   };
 
+  const handleMakePayment = (record) => {
+    setPaymentData(record);
+    setIsPaymentModalOpen(true);
+  };
+
   const handleSubmitFilter = (data) => {
     console.log("Filter submitted:", data);
-    // এখানে API call দিয়ে filter logic লাগাতে পারো
   };
 
   const columns = [
@@ -88,6 +97,12 @@ const PurchaseOrder = () => {
       width: 100,
     },
     {
+      title: "Due",
+      key: "due",
+      render: (_, record) => record.due || 0,
+      width: 100,
+    },
+    {
       title: "Commision",
       key: "Commision",
       render: (_, record) => record.commission || "-",
@@ -108,12 +123,17 @@ const PurchaseOrder = () => {
     {
       title: "Action",
       key: "action",
-      width: 120,
+      width: 160,
       render: (_, record) => (
         <Space size="middle">
           <EditOutlined
             className="text-blue-500 cursor-pointer"
             onClick={() => onEdit(record)}
+          />
+          <FaMoneyBillWave
+            className="text-green-500 cursor-pointer"
+            size={18}
+            onClick={() => handleMakePayment(record)}
           />
           <DeleteOutlined
             className="text-red-500 cursor-pointer"
@@ -123,7 +143,7 @@ const PurchaseOrder = () => {
       ),
     },
   ];
-  console.log(selectedProduct);
+
   return (
     <>
       {/* Filtering */}
@@ -206,6 +226,15 @@ const PurchaseOrder = () => {
           isOpen={isEditModalOpen}
           setIsOpen={setIsEditModalOpen}
           productData={selectedProduct}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {isPaymentModalOpen && paymentData && (
+        <AddPurchasePayment
+          isOpen={isPaymentModalOpen}
+          setIsOpen={setIsPaymentModalOpen}
+          purchaseId={paymentData.id}
         />
       )}
     </>

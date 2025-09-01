@@ -1,23 +1,28 @@
 "use client";
 import { useState } from "react";
-
-const customers = [
-  { id: 1, name: "Customer A" },
-  { id: 2, name: "Customer B" },
-  { id: 3, name: "Customer C" },
-];
+import { useGetCustomersQuery } from "@/app/features/api/customersApi";
+import { useDispatch, useSelector } from "react-redux";
+import { setCustomer } from "@/app/features/slice/posSlice";
 
 const PosSiderbarCustomer = () => {
-  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const dispatch = useDispatch();
+  const selectedCustomerId = useSelector((state) => state.pos.customerId);
+
+  const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
 
-  // Filtered customers based on input
+  const { data: customerData, isLoading } = useGetCustomersQuery();
+  const customers = customerData?.customers || [];
+
   const filteredCustomers = customers.filter((c) =>
-    c.name.toLowerCase().includes(selectedCustomer.toLowerCase())
+    `${c.firstName} ${c.lastName}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
-  const handleSelect = (name) => {
-    setSelectedCustomer(name);
+  const handleSelect = (customer) => {
+    dispatch(setCustomer(customer.id));
+    setSearchTerm(`${customer.firstName} ${customer.lastName}`);
     setOpen(false);
   };
 
@@ -28,30 +33,33 @@ const PosSiderbarCustomer = () => {
         type="text"
         placeholder="Search or Select Customer..."
         className="border p-2 rounded w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        value={selectedCustomer}
+        value={searchTerm}
         onChange={(e) => {
-          setSelectedCustomer(e.target.value);
+          setSearchTerm(e.target.value);
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
       />
 
-      {/* Dropdown */}
-      {open &&
-        selectedCustomer.trim() !== "" &&
-        filteredCustomers.length > 0 && (
-          <ul className="absolute top-16 left-3 right-3 bg-white border rounded shadow max-h-40 overflow-auto z-20">
-            {filteredCustomers.map((c) => (
-              <li
-                key={c.id}
-                onClick={() => handleSelect(c.name)}
-                className="px-2 py-1 hover:bg-blue-100 cursor-pointer"
-              >
-                {c.name}
-              </li>
-            ))}
-          </ul>
-        )}
+      {open && (
+        <ul className="absolute top-16 left-3 right-3 bg-white border rounded shadow max-h-40 overflow-auto z-20">
+          {isLoading && <li className="px-2 py-1">Loading...</li>}
+          {!isLoading && filteredCustomers.length === 0 && (
+            <li className="px-2 py-1 text-gray-500">No customers found</li>
+          )}
+          {filteredCustomers.map((c) => (
+            <li
+              key={c.id}
+              onClick={() => handleSelect(c)}
+              className={`px-2 py-1 hover:bg-blue-100 cursor-pointer ${
+                selectedCustomerId === c.id ? "bg-blue-200" : ""
+              }`}
+            >
+              {c.firstName} {c.lastName}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

@@ -245,7 +245,7 @@ const EditPurchaseModal = ({ isOpen, setIsOpen, productData }) => {
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label className={labelClass}>Warranty Days</label>
             <input
               type="number"
@@ -253,7 +253,7 @@ const EditPurchaseModal = ({ isOpen, setIsOpen, productData }) => {
               readOnly
               className={`${inputClass} bg-gray-100`}
             />
-          </div>
+          </div> */}
 
           {/* Status */}
           <div>

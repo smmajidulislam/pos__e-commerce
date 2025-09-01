@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setDiscount, setTax, setCash } from "@/app/features/slice/posSlice";
 
 const PosPayment = () => {
-  const [discount, setDiscount] = useState(0);
-  const [tax, setTax] = useState(0);
-  const [cash, setCash] = useState(0);
+  const dispatch = useDispatch();
+  const { products, discount, tax, cash } = useSelector((state) => state.pos);
 
-  const subtotal = 500; // Example
+  const subtotal = products.reduce((sum, p) => sum + p.price, 0);
   const total = subtotal - discount + (subtotal * tax) / 100;
   const due = total - cash;
 
@@ -19,11 +19,11 @@ const PosPayment = () => {
           <span>${subtotal}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span>Discount (%):</span>
+          <span>Discount:</span>
           <input
             type="number"
             value={discount}
-            onChange={(e) => setDiscount(Number(e.target.value))}
+            onChange={(e) => dispatch(setDiscount(Number(e.target.value)))}
             className="border p-0.5 w-16 rounded text-xs"
           />
         </div>
@@ -32,7 +32,7 @@ const PosPayment = () => {
           <input
             type="number"
             value={tax}
-            onChange={(e) => setTax(Number(e.target.value))}
+            onChange={(e) => dispatch(setTax(Number(e.target.value)))}
             className="border p-0.5 w-16 rounded text-xs"
           />
         </div>
@@ -41,7 +41,7 @@ const PosPayment = () => {
           <input
             type="number"
             value={cash}
-            onChange={(e) => setCash(Number(e.target.value))}
+            onChange={(e) => dispatch(setCash(Number(e.target.value)))}
             className="border p-0.5 w-16 rounded text-xs"
           />
         </div>
