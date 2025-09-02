@@ -38,7 +38,6 @@ export default function LoginPage() {
       const res = await login(payload).unwrap();
       if (res?.message) {
         saveUser(res?.user);
-        router.push("/shop");
         sawal.fire({
           icon: "success",
           title: "Success!",
@@ -47,6 +46,7 @@ export default function LoginPage() {
           cancelButtonText: "Close",
           cancelButtonColor: "#3085d6",
         });
+        router.push("/shop");
       }
 
       reset();
