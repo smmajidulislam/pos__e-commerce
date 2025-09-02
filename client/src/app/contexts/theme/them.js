@@ -4,7 +4,7 @@ import { createContext, useState } from "react";
 export const ThemContext = createContext();
 
 export const ThemProvider = ({ children }) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
