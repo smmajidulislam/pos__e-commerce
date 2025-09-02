@@ -4,17 +4,8 @@ import ExpiredProducts from "@/app/components/pos/dashbord/ExpiredProducts";
 import Information from "@/app/components/pos/dashbord/Information";
 import RecentsOrders from "@/app/components/pos/dashbord/RecentsOrders";
 import Reports from "@/app/components/pos/dashbord/Reports";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+
 const Dashbord = () => {
-  const router = useRouter();
-  useEffect(() => {
-    const allCookies = document.cookie;
-    const isLogin = allCookies.includes("token_type=user");
-    if (!isLogin) {
-      router.push("/login");
-    }
-  }, []);
   return (
     <div>
       <Information />
