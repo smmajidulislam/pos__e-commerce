@@ -137,13 +137,6 @@ const Header = () => {
             onClick={toggleProfileMenu}
             className="flex items-center gap-1 lg:gap-2 p-1 hover:bg-gray-200 rounded"
           >
-            <Image
-              src="/profile.jpg"
-              width={32}
-              height={32}
-              alt="Profile"
-              className="w-8 h-8 rounded-full"
-            />
             <span className="hidden md:block font-medium">{user?.name}</span>
             <FaEllipsisV className="hidden md:block" />
           </button>
