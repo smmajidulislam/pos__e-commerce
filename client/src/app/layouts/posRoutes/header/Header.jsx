@@ -3,7 +3,6 @@ import { useGetStoresQuery } from "@/app/features/api/storeApi";
 import { useTheme } from "@/app/hooks/theme/useThem";
 import { MyErrorSawal } from "@/app/utils/Sawal";
 import useStoreToken from "@/app/utils/storetoken/saveStoeToken";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FaEllipsisV, FaExpand } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -12,7 +11,7 @@ const Header = () => {
   const { isCollapsed, setIsCollapsed } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const { user } = useUser();
+  const { removeUser, user } = useUser();
 
   const { data, isLoading, isError } = useGetStoresQuery();
 
@@ -52,13 +51,21 @@ const Header = () => {
   useEffect(() => {
     if (!tokenLoading && data?.stores) {
       if (selectedStore) {
-        const matched = data.stores.find((s) => s.id === selectedStore.id);
-        if (!matched) MyErrorSawal(true, 15000, "Please select a store");
+        setTimeout(() => {
+          const matched = data.stores.find((s) => s.id === selectedStore.id);
+          if (!matched) MyErrorSawal(true, 15000, "Please select a store");
+        }, 20000);
       } else {
-        MyErrorSawal(true, 15000, "Please select a store");
+        setTimeout(() => {
+          MyErrorSawal(true, 15000, "Please select a store");
+        }, 20000);
       }
     }
   }, [tokenLoading, data, selectedStore]);
+  const handleLogout = () => {
+    removeUser();
+    setProfileOpen(false);
+  };
 
   return (
     <header className="bg-white h-16 flex items-center shadow-sm border-b border-gray-200 px-4 sticky top-0 z-50 flex-wrap">
@@ -157,7 +164,7 @@ const Header = () => {
                   Settings
                 </li>
                 <li
-                  onClick={() => setProfileOpen(false)}
+                  onClick={handleLogout}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 >
                   Logout
