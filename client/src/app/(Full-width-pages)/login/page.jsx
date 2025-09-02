@@ -36,6 +36,7 @@ export default function LoginPage() {
       };
 
       const res = await login(payload).unwrap();
+
       if (res?.message) {
         saveUser(res?.user);
         sawal.fire({
