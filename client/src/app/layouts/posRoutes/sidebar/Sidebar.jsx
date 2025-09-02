@@ -108,12 +108,11 @@ const Sidebar = () => {
 
   const setActiveSubItem = (label) => {
     setActiveSub(label);
-    setMobileOpen(false); // Mobile e item select hole close
+    setMobileOpen(false);
   };
 
   return (
     <>
-      {/* Overlay for mobile */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-40 sm:hidden"

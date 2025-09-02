@@ -1,4 +1,3 @@
-"use client";
 import SalesChart from "@/app/components/pos/dashbord/Charts";
 import ExpiredProducts from "@/app/components/pos/dashbord/ExpiredProducts";
 import Information from "@/app/components/pos/dashbord/Information";
