@@ -7,6 +7,7 @@ import {
 } from "@/app/features/api/reports";
 import AddPayment from "@/app/components/modal/(sales)/AddPament";
 import { FaMoneyBillWave } from "react-icons/fa";
+import Print from "@/app/utils/Print";
 
 const CustomersReport = () => {
   const [currentCustomerId, setCurrentCustomerId] = useState(null);
@@ -15,7 +16,7 @@ const CustomersReport = () => {
 
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 5,
+    pageSize: 10,
     total: 0,
   });
 
@@ -53,27 +54,34 @@ const CustomersReport = () => {
       title: "Name",
       dataIndex: "firstName",
       key: "name",
-      render: (text, record) => `${record.firstName} ${record.lastName}`,
+      render: (text, record) => (
+        <span className="font-medium text-gray-800">{`${record.firstName} ${record.lastName}`}</span>
+      ),
+      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      responsive: ["md", "lg", "xl"],
     },
     {
       title: "Phone",
       dataIndex: "phone",
       key: "phone",
+      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
     {
       title: "City",
       dataIndex: "city",
       key: "city",
+      responsive: ["md", "lg", "xl"],
     },
     {
       title: "Country",
       dataIndex: "country",
       key: "country",
+      responsive: ["lg", "xl"],
     },
     {
       title: "Due",
@@ -92,6 +100,7 @@ const CustomersReport = () => {
           )}
         </div>
       ),
+      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
     {
       title: "Action",
@@ -99,31 +108,70 @@ const CustomersReport = () => {
       render: (_, record) => (
         <button
           onClick={() => {
-            setSelectedSale({ salesId: record.id }); // salesId/customerId পাঠানো
+            setSelectedSale({ customerId: record.id });
             setIsPaymentOpen(true);
           }}
-          className="text-green-600 hover:text-green-800"
+          className="text-green-600 hover:text-green-800 transition-colors"
+          title="Add Payment"
         >
           <FaMoneyBillWave size={18} />
         </button>
       ),
+      responsive: ["xs", "sm", "md", "lg", "xl"],
     },
   ];
 
+  // DataSource বানানো
+  const dataSource = customersData?.customers || [];
+
+  // invoiceData বানানো (প্রিন্টের জন্য)
+  const invoiceData = {
+    brandName: "Selo POS",
+    tagline: "Sales Management Report",
+    date: new Date().toLocaleDateString(),
+    invoiceNumber: "SL-" + new Date().getTime(),
+    customer: {
+      address: "Customers Report",
+    },
+    items: dataSource.map((cust, index) => ({
+      sl: index + 1,
+      name: `${cust.firstName} ${cust.lastName}`,
+      email: cust.email,
+      phone: cust.phone,
+      city: cust.city,
+      country: cust.country,
+      due: cust.due ?? 0,
+    })),
+    terms: "Thank you!",
+  };
+
   return (
     <div className="p-4 md:p-8">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-        Customers Report
-      </h1>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center md:text-left">
+          Customers Report
+        </h1>
+        <div>
+          <Print invoiceData={invoiceData} customerReport />
+        </div>
+      </div>
 
-      <Table
-        columns={columns}
-        dataSource={customersData?.customers || []}
-        rowKey="id"
-        pagination={pagination}
-        loading={customersLoading}
-        scroll={{ x: "max-content" }}
-      />
+      {/* Table */}
+      <div className="bg-white rounded-2xl shadow-md p-4 md:p-6 overflow-hidden">
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          rowKey="id"
+          pagination={{
+            ...pagination,
+            showSizeChanger: true,
+            showTotal: (total) => `Total ${total} customers`,
+          }}
+          loading={customersLoading}
+          scroll={{ x: "max-content" }}
+        />
+      </div>
 
       {/* Payment Modal */}
       <AddPayment

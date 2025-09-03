@@ -11,6 +11,7 @@ import {
   useGetPurchasesQuery,
   useDeletePurchaseMutation,
 } from "@/app/features/api/purchasesApi";
+import Print from "@/app/utils/Print";
 
 const PurchaseOrder = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,6 +66,29 @@ const PurchaseOrder = () => {
 
   const handleSubmitFilter = (data) => {
     console.log("Filter submitted:", data);
+  };
+  // invoiceData generate from API data
+  const invoiceData = {
+    brandName: "Selo Pos",
+    tagline: "Purchase Order Report",
+    date: new Date().toLocaleDateString(),
+    invoiceNumber: "INV-" + Date.now(),
+    customer: {
+      name: "Admin",
+      address: "Purchase List",
+    },
+    items:
+      products?.map((record, index) => ({
+        sl: index + 1,
+        productName: record.product?.name || "-",
+        store: record.store?.name || "-",
+        price: (record.payment || 0) + (record.due || 0),
+        due: record.due || 0,
+        commission: record.commission || "-",
+        sku: record.product?.sku || "-",
+        itemCode: record.product?.itemCode || "-",
+      })) || [],
+    terms: "Thank you for your business!",
   };
 
   const columns = [
@@ -192,13 +216,8 @@ const PurchaseOrder = () => {
       </div>
 
       {/* Print & PDF buttons */}
-      <div className="flex justify-end m-2 gap-2">
-        <button className="flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          <FaPrint className="mr-2" /> Print
-        </button>
-        <button className="flex items-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-          <FaFilePdf className="mr-2" /> PDF
-        </button>
+      <div className="flex justify-end mb-2 gap-2">
+        <Print invoiceData={invoiceData} purchaseorder />
       </div>
 
       {/* Table */}

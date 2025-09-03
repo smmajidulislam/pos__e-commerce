@@ -2,7 +2,6 @@
 import Filtering from "@/app/components/filter/Filtering";
 import React, { useState } from "react";
 import { Table, Space } from "antd";
-import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import EditSalesModal from "@/app/components/modal/(sales)/EditSalesModal";
 import {
@@ -11,6 +10,7 @@ import {
   useUpdateSaleMutation,
 } from "@/app/features/api/salesApi";
 import sawal from "sweetalert2";
+import Print from "@/app/utils/Print";
 
 const Saleslist = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +32,7 @@ const Saleslist = () => {
   const handleSubmitFilter = (data) => {
     console.log("Filter data:", data);
   };
+
   const handleEdit = async (data) => {
     try {
       const response = await updateSale({
@@ -68,7 +69,7 @@ const Saleslist = () => {
     }
   };
 
-  // Map RTK query data to table columns
+  // Table dataSource
   const dataSource = sales.map((sale) => ({
     key: sale.id,
     id: sale.id,
@@ -78,8 +79,37 @@ const Saleslist = () => {
     quantity: sale.quantity,
     salesPrice: sale.salesPrice,
     due: sale.due,
+    tax: sale.tax,
+    discount: sale.discount,
+    unitPrice: sale.unitPrice,
+    price: sale.price,
     ...sale,
   }));
+
+  // InvoiceData for printing (Table এর dataSource থেকে আসবে)
+  const invoiceData = {
+    brandName: "Selo POS",
+    tagline: "Sales Management Report",
+    date: new Date().toLocaleDateString(),
+    invoiceNumber: "SL-" + new Date().getTime(),
+    customer: {
+      address: "Sales List Report",
+    },
+    items: dataSource.map((sale, index) => ({
+      sl: index + 1,
+      customerName: sale.customerName,
+      product: sale.product,
+      category: sale.category,
+      quantity: sale.quantity,
+      unitPrice: sale.unitPrice,
+      price: sale.price,
+      salesPrice: sale.salesPrice,
+      discount: sale.discount,
+      tax: sale.tax,
+      due: sale.due,
+    })),
+    terms: "Thank you!",
+  };
 
   const columns = [
     {
@@ -98,13 +128,37 @@ const Saleslist = () => {
       title: "Qty",
       dataIndex: "quantity",
       key: "quantity",
+      width: 80,
+    },
+    {
+      title: "Unit Price",
+      dataIndex: "unitPrice",
+      key: "unitPrice",
+      width: 100,
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
       width: 100,
     },
     {
       title: "Sales Price",
       dataIndex: "salesPrice",
       key: "salesPrice",
-      width: 150,
+      width: 120,
+    },
+    {
+      title: "Discount",
+      dataIndex: "discount",
+      key: "discount",
+      width: 100,
+    },
+    {
+      title: "Tax",
+      dataIndex: "tax",
+      key: "tax",
+      width: 100,
     },
 
     {
@@ -120,7 +174,6 @@ const Saleslist = () => {
               setIsEditModalOpen(true);
             }}
           />
-
           <DeleteOutlined
             className="text-red-500 cursor-pointer"
             onClick={() => handleDelete(record)}
@@ -177,15 +230,9 @@ const Saleslist = () => {
         </Filtering>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end m-2 gap-2">
-        <button className="flex items-center px-4 py-2 bg-blue-500 !text-white rounded hover:bg-blue-600">
-          <FaPrint className="mr-2" /> Print
-        </button>
-
-        <button className="flex items-center px-4 py-2 bg-red-500 !text-white rounded hover:bg-red-600">
-          <FaFilePdf className="mr-2" /> PDF
-        </button>
+      {/* Print Button */}
+      <div className="flex justify-end mb-2 gap-2">
+        <Print invoiceData={invoiceData} saleslist />
       </div>
 
       {/* Edit Sales Modal */}
