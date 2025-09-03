@@ -2,6 +2,7 @@
 import React from "react";
 import { useGetProfitAndLossQuery } from "@/app/features/api/reports";
 import { Table, Skeleton, Card, Row, Col } from "antd";
+import Print from "@/app/utils/Print";
 
 const ProfitAndLossReport = () => {
   const { data, isLoading } = useGetProfitAndLossQuery();
@@ -63,9 +64,18 @@ const ProfitAndLossReport = () => {
       },
     },
   ];
+  const invoiceData = {
+    brandName: "Selo POS",
+    tagline: "Business Analytics",
+    date: new Date().toLocaleDateString(),
+    dateWiseReport: dateWiseReport, // API থেকে আসা টেবিল ডেটা
+    overallReport: overallReport, // API থেকে আসা সারাংশ
+    terms: "This report is auto-generated.",
+  };
 
   return (
     <div className="p-4">
+      <Print invoiceData={invoiceData} profit />
       {/* Overall Report Summary */}
       <Row gutter={16} className="mb-6">
         <Col span={6}>

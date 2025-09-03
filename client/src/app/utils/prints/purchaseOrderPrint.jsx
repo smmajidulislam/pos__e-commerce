@@ -1,7 +1,7 @@
 "use client";
 import React, { forwardRef } from "react";
 
-const PrintInvoice = forwardRef(({ invoiceData }, ref) => {
+const PrintInvoicePurchases = forwardRef(({ invoiceData }, ref) => {
   // প্রতি পেজে ১০টা product
   const itemsPerPage = 10;
   const pages = [];
@@ -29,7 +29,7 @@ const PrintInvoice = forwardRef(({ invoiceData }, ref) => {
             </div>
             <div className="mt-2 md:mt-0 text-right">
               <h2 className="text-3xl font-bold tracking-wider">
-                PRODUCT LIST
+                PURCHASE LIST
               </h2>
               <p className="text-gray-500">Date: {invoiceData?.date}</p>
             </div>
@@ -48,39 +48,45 @@ const PrintInvoice = forwardRef(({ invoiceData }, ref) => {
           {pageIndex === 0 && (
             <div className="mb-4">
               <p className="font-semibold text-base">Report:</p>
-              <p>{invoiceData?.customer.address}</p>
+              <p>{invoiceData?.customer?.address}</p>
             </div>
           )}
 
           {/* Product Table */}
           <div className="overflow-x-auto mb-4">
-            <table className="min-w-full border border-gray-300 text-sm">
+            <table className="min-w-full border border-gray-300 text-sm border-collapse">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="border px-2 py-1 text-center w-12">SL</th>
+                  <th className="border px-2 py-1 text-center">SL</th>
                   <th className="border px-2 py-1 text-left">Product Name</th>
-                  <th className="border px-2 py-1 text-left">Category</th>
                   <th className="border px-2 py-1 text-left">Store</th>
-                  <th className="border px-2 py-1 text-left">Warehouse</th>
+                  <th className="border px-2 py-1 text-right">Price</th>
+                  <th className="border px-2 py-1 text-right">Due</th>
+                  <th className="border px-2 py-1 text-left">Commission</th>
                   <th className="border px-2 py-1 text-left">SKU</th>
+                  <th className="border px-2 py-1 text-left">Item Code</th>
                 </tr>
               </thead>
               <tbody>
-                {itemsPage.map((item) => (
-                  <tr key={item.sl} className="hover:bg-gray-50">
-                    <td className="border px-2 py-1 text-center">{item?.sl}</td>
-                    <td className="border px-2 py-1">{item?.name}</td>
-                    <td className="border px-2 py-1">{item?.category}</td>
-                    <td className="border px-2 py-1">{item?.store}</td>
-                    <td className="border px-2 py-1">{item?.warehouse}</td>
-                    <td className="border px-2 py-1">{item?.sku}</td>
+                {itemsPage.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="border px-2 py-1 text-center">{item.sl}</td>
+                    <td className="border px-2 py-1">{item.productName}</td>
+                    <td className="border px-2 py-1">{item.store}</td>
+                    <td className="border px-2 py-1 text-right">
+                      {item.price}
+                    </td>
+                    <td className="border px-2 py-1 text-right">{item.due}</td>
+                    <td className="border px-2 py-1">{item.commission}</td>
+                    <td className="border px-2 py-1">{item.sku}</td>
+                    <td className="border px-2 py-1">{item.itemCode}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Footer শুধু লাস্ট পেজে */}
+          {/* Footer (শুধু লাস্ট পেজে) */}
           {pageIndex === pages?.length - 1 && (
             <div className="flex flex-col md:flex-row justify-between items-center border-t pt-2 text-gray-600 text-sm">
               <p className="text-blue-600 font-semibold">
@@ -95,4 +101,4 @@ const PrintInvoice = forwardRef(({ invoiceData }, ref) => {
   );
 });
 
-export default PrintInvoice;
+export default PrintInvoicePurchases;

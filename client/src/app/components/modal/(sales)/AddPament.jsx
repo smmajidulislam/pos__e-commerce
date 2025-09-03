@@ -13,14 +13,14 @@ const AddPayment = ({ isOpen, setIsOpen, initialData }) => {
     reset,
   } = useForm({
     defaultValues: {
-      salesId: initialData?.salesId || "",
+      customerId: initialData?.customerId || "",
       amount: "",
     },
   });
   const [createSalesDuePayment] = useCreateSalesDuePaymentMutation();
 
   const handleFormSubmit = async (data) => {
-    data = { salesId: initialData?.salesId, amount: Number(data.amount) };
+    data = { customerId: initialData?.customerId, amount: Number(data.amount) };
     console.log("Form Data:", data);
     const res = await createSalesDuePayment(data).unwrap();
     console.log(res);
@@ -48,8 +48,11 @@ const AddPayment = ({ isOpen, setIsOpen, initialData }) => {
         <h2 className="text-xl font-bold mb-4">Add Payment</h2>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          {/* Hidden SalesId */}
-          <input type="hidden" {...register("salesId", { required: false })} />
+          {/* Hidden customerId */}
+          <input
+            type="hidden"
+            {...register("customerId", { required: false })}
+          />
 
           {/* Amount */}
           <div>

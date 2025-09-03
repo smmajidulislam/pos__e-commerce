@@ -48,6 +48,7 @@ export const store = configureStore({
     [purchaseApi.reducerPath]: purchaseApi.reducer,
     [priceApi.reducerPath]: priceApi.reducer,
     [reportsApi.reducerPath]: reportsApi.reducer,
+    [duePaymentApi.reducerPath]: duePaymentApi.reducer,
     [stockExchangeApi.reducerPath]: stockExchangeApi.reducer,
     [returnProductApi.reducerPath]: returnProductApi.reducer,
   },

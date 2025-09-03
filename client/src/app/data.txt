@@ -1,4 +1,4 @@
- const invoiceData = {
+const invoiceData = {
     brandName: "Selo Pos",
     tagline: "Tagline goes here",
     date: "01/02/2020",

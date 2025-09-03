@@ -21,6 +21,7 @@ const Category = () => {
   const [editingData, setEditingData] = useState(null);
 
   const { data, refetch, isLoading } = useGetCategoriesQuery();
+  console.log(data);
   const [deleteCategory] = useDeleteCategoryMutation();
 
   // Filtering handler

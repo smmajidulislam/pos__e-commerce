@@ -8,13 +8,26 @@ import { addProduct } from "@/app/features/slice/posSlice";
 const PosProducts = () => {
   const dispatch = useDispatch();
   const customerId = useSelector((state) => state.pos.customerId);
+  const categoryId = useSelector((state) => state.pos.categoryId);
+  const subCategoryId = useSelector((state) => state.pos.subCategoryId);
+  const subSubCategoryId = useSelector((state) => state.pos.subSubCategoryId);
+  const productId = useSelector((state) => state.pos.productId);
+  console.log("==============>", subCategoryId);
+  console.log("==============>", subSubCategoryId);
+  console.log("==============>", productId);
 
-  const [currentImages, setCurrentImages] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
 
-  const { data: productsData, isLoading, isError } = useGetPurchasesQuery();
-  console.log(productsData);
+  // এখন categoryId dependency হিসেবে যাবে
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+  } = useGetPurchasesQuery(categoryId);
+
+  // Track current image index for each product
+  const [currentImages, setCurrentImages] = useState([]);
 
   useEffect(() => {
     if (productsData?.data) {
@@ -22,6 +35,7 @@ const PosProducts = () => {
     }
   }, [productsData]);
 
+  // Auto slide effect
   useEffect(() => {
     const interval = setInterval(() => {
       if (productsData?.data) {
@@ -33,7 +47,7 @@ const PosProducts = () => {
           })
         );
       }
-    }, 4000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [productsData]);
 
@@ -56,11 +70,13 @@ const PosProducts = () => {
 
   return (
     <div className="flex flex-col">
+      {/* Products Grid */}
       <div className="flex flex-wrap justify-around gap-2 p-2 overflow-y-auto flex-1">
         {currentProducts.map((item, i) => {
           const product = item.product;
+          const productImages = product?.images || [];
           const imageIndex = currentImages[indexOfFirst + i] || 0;
-          const productImages = product?.images || ["/images/default.jpg"];
+
           return (
             <div
               key={item.id}
@@ -77,14 +93,17 @@ const PosProducts = () => {
                 )
               }
             >
+              {/* Auto Slider Image */}
               <div className="relative w-full h-32 mb-1 rounded overflow-hidden">
                 <Image
-                  src={productImages[imageIndex]}
+                  src={productImages[imageIndex]?.url || "/images/default.jpg"}
                   alt={product?.name || "Product"}
                   fill
-                  style={{ objectFit: "cover" }}
+                  className="object-cover rounded"
                 />
               </div>
+
+              {/* Product Info */}
               <div className="text-gray-700 font-semibold text-sm">
                 {product?.name}
               </div>
@@ -96,6 +115,7 @@ const PosProducts = () => {
         })}
       </div>
 
+      {/* Pagination */}
       <div className="flex justify-center items-center gap-2 p-2">
         {Array.from({ length: totalPages }, (_, i) => (
           <button
