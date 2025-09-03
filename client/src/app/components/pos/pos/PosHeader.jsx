@@ -1,22 +1,19 @@
 "use client";
+import { useGetCategoriesQuery } from "@/app/features/api/categoryApi";
 import React, { useEffect, useRef } from "react";
 import { FaChevronLeft, FaChevronRight, FaBoxes } from "react-icons/fa";
-
-const categories = [
-  "Electronics",
-  "Clothes",
-  "Shoes",
-  "Watches",
-  "Furniture",
-  "Sports",
-];
+import { useDispatch } from "react-redux";
+import { setCategory } from "@/app/features/slice/posSlice";
 
 const PosHeader = () => {
   const containerRef = useRef(null);
+  const dispatch = useDispatch();
+
+  const { data } = useGetCategoriesQuery();
 
   // Left scroll
   const scrollLeft = () => {
-    containerRef.current.scrollBy({ left: -200, behavior: "smooth" });
+    containerRef.current?.scrollBy({ left: -200, behavior: "smooth" });
   };
 
   // Right scroll
@@ -40,6 +37,11 @@ const PosHeader = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // Category Click Handler
+  const handleCategoryClick = (id) => {
+    dispatch(setCategory(id));
+  };
 
   return (
     <div className="relative w-full p-2 bg-white shadow-sm overflow-x-hidden">
@@ -73,13 +75,14 @@ const PosHeader = () => {
           }
         `}</style>
 
-        {categories.map((cat, index) => (
+        {data?.categories?.map((cat) => (
           <div
-            key={index}
+            key={cat.id}
+            onClick={() => handleCategoryClick(cat.id)}
             className="flex-shrink-0 w-40 h-20 bg-gray-100 hover:bg-blue-100 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow"
           >
             <FaBoxes className="text-gray-600" />
-            <span className="text-gray-700 font-medium">{cat}</span>
+            <span className="text-gray-700 font-medium">{cat.name}</span>
           </div>
         ))}
       </div>

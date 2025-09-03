@@ -22,7 +22,7 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
   const { data: brandData } = useGetBrandsQuery();
   const { data: attributeValuesData } = useGetAttributesQuery();
 
-  const [addProductImages] = useAddProductImagesMutation();
+  const [addProductImages, { isLoading }] = useAddProductImagesMutation();
   const [updateProduct] = useUpdateProductMutation();
 
   const [previewImages, setPreviewImages] = useState([]);
@@ -110,7 +110,6 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
 
   const onSubmitImages = async (e) => {
     e.preventDefault();
-    console.log(productData);
 
     try {
       const formData = new FormData();
@@ -121,9 +120,19 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
         productId: productData.id,
         formData,
       }).unwrap();
-      console.log(res);
+      if (res?.newImages) {
+        Swal.fire({
+          icon: "success",
+          title: "Updated",
+          text: "Product images updated successfully!",
+        });
+      }
     } catch (err) {
-      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update product images!",
+      });
     }
   };
 
@@ -371,7 +380,7 @@ const EditProductModal = ({ isOpen, setIsOpen, productData }) => {
               type="submit"
               className="bg-green-600 !text-white px-6 py-2 rounded-md hover:bg-green-700"
             >
-              Upload Images
+              {isLoading ? "Uploading..." : "Upload Images"}
             </button>
           </div>
         </form>

@@ -9,6 +9,10 @@ const initialState = {
   taxType: "CASH",
   tax: 0,
   cash: 0,
+  categoryId: null,
+  subCategoryId: null,
+  subSubCategoryId: null,
+  productId: null,
 };
 
 const posSlice = createSlice({
@@ -73,6 +77,18 @@ const posSlice = createSlice({
         (p) => p.purchaseId !== action.payload
       );
     },
+    setCategory: (state, action) => {
+      state.categoryId = action.payload;
+    },
+    setSubCategory: (state, action) => {
+      state.subCategoryId = action.payload;
+    },
+    setSubSUbCategory: (state, action) => {
+      state.subSubCategoryId = action.payload;
+    },
+    setProductId: (state, action) => {
+      state.productId = action.payload;
+    },
     setDiscount: (state, action) => {
       state.discount = action.payload;
     },
@@ -96,6 +112,10 @@ export const {
   setDiscount,
   setTax,
   setCash,
+  setCategory,
+  setSubCategory,
+  setSubSUbCategory,
+  setProductId,
   resetOrder,
 } = posSlice.actions;
 

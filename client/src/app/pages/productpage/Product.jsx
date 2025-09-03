@@ -1,18 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import Filtering from "@/app/components/filter/Filtering";
 import { Table, Space, Skeleton } from "antd";
-import { FaPrint, FaFilePdf } from "react-icons/fa";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
 } from "@/app/features/api/productApi";
 import EditProductModal from "@/app/components/modal/editproduct/EditProductModal";
+import Print from "@/app/utils/Print";
 
 const Products = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
 
   const {
     data: productsData,
@@ -21,10 +21,13 @@ const Products = () => {
     refetch,
   } = useGetProductsQuery();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-  console.log(productsData);
+
   // Modal states
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
+
+  // Print Ref
+  const printRef = useRef();
 
   const handleSubmit = (data) => {
     console.log("Filtering submitted:", data);
@@ -44,6 +47,7 @@ const Products = () => {
     }
   };
 
+  // Table columns
   const columns = [
     {
       title: "SL",
@@ -81,7 +85,6 @@ const Products = () => {
       key: "sku",
       width: 120,
     },
-
     {
       title: "Action",
       key: "action",
@@ -102,6 +105,26 @@ const Products = () => {
       ),
     },
   ];
+  const invoiceData = {
+    brandName: "Selo Pos",
+    tagline: "Product Management System",
+    date: new Date().toLocaleDateString(),
+    invoiceNumber: "2548",
+    customer: {
+      name: "Admin",
+      address: "Product Lists",
+    },
+    items:
+      productsData?.products?.map((product, index) => ({
+        sl: index + 1,
+        name: product.name || "-",
+        category: product.category?.name || "-",
+        store: product.store?.name || "-",
+        warehouse: product.warehouse?.name || "-",
+        sku: product.sku || "-",
+      })) || [],
+    terms: "Thank you for your business!",
+  };
 
   return (
     <div className="p-4">
@@ -149,15 +172,12 @@ const Products = () => {
           )}
         </Filtering>
       </div>
-      {/* Print/PDF buttons */}
+
+      {/* Print Button */}
       <div className="flex justify-end mb-2 gap-2">
-        <button className="flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          <FaPrint className="mr-2" /> Print
-        </button>
-        <button className="flex items-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-          <FaFilePdf className="mr-2" /> PDF
-        </button>
+        <Print invoiceData={invoiceData} />
       </div>
+
       {/* Table */}
       <div className="overflow-x-auto">
         {isLoading ? (
@@ -172,6 +192,7 @@ const Products = () => {
           <Table
             columns={columns}
             dataSource={productsData?.products || []}
+            ref={printRef}
             rowKey="id"
             pagination={{
               current: currentPage,
@@ -185,6 +206,7 @@ const Products = () => {
           />
         )}
       </div>
+
       {/* Edit Product Modal */}
       {isEditOpen && selectedProduct && (
         <EditProductModal
